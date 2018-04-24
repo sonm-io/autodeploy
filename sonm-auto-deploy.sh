@@ -40,7 +40,7 @@ if [ "$ip_blocked" != "0" ]; then
     echo "${red}====================================${reset}"
     exit 1
 fi
-
+sleep 5 # delay while sonm starts
 curl -s https://raw.githubusercontent.com/sonm-io/autodeploy/master/sonm-get-eth.py | python3 - $MYIP
 curl -s https://raw.githubusercontent.com/sonm-io/autodeploy/master/sonm-create-ask-plan.py | python3
 journalctl -u sonm-hub | grep ask-plan | tail -1
