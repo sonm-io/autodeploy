@@ -18,7 +18,7 @@ def run_cli_login():
 
 
 eth_addr = run_cli_login().decode('utf-8').rstrip()
-ip = sys.argv[2]
+ip = sys.argv[1]
 response = requests.post('http://95.216.141.161:8000/register', json={'addr': eth_addr, 'ip': ip})
 
 if response.status_code != 200:
