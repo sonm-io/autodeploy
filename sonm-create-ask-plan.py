@@ -23,7 +23,7 @@ def create_slot_yaml(_cpu, _ram):
     try:
         _data = {"duration": "168h",
                  "resources": {"cpu_cores": _cpu, "ram_bytes": _ram, "gpu_count": "NO_GPU", "storage": "256mb",
-                               "network": {"in": "1Mb", "out": "1Mb", "type": "INCOMING"},
+                               "network": {"in": "1Gb", "out": "1Gb", "type": "INCOMING"},
                                "properties": {"operation-a": 1}}}
         with io.open('slot.yaml', 'w+', encoding='utf8') as outfile:
             ruamel.yaml.round_trip_dump(_data, outfile)
