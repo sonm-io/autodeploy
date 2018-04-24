@@ -31,7 +31,7 @@ echo "${green}===============================================${reset}"
 read passwd < /dev/tty
 curl -s https://raw.githubusercontent.com/sonm-io/autodeploy/master/sonm-auto-configure.py | python3 - $passwd $MYIP
 actual_user=$(logname)
-chown -R $actual_user:$actual_user ~/sonm-keystore/
+chown -R $actual_user:$actual_user $KSDIR
 systemctl restart sonm-node sonm-hub sonm-worker
 
 ip_blocked=$(curl -sX POST http://isitblockedinrussia.com -H 'Content-Type: application/json' -d '{"host":"'$MYIP'"}' | jq -r '.ips[] | .blocked | length')
