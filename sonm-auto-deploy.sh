@@ -43,3 +43,4 @@ fi
 
 curl -s https://raw.githubusercontent.com/sonm-io/autodeploy/master/sonm-get-eth.py | python3
 curl -s https://raw.githubusercontent.com/sonm-io/autodeploy/master/sonm-create-ask-plan.py | python3
+journalctl -u sonm-hub | grep ask-plan
