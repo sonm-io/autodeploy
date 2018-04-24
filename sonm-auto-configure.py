@@ -87,5 +87,3 @@ ip = sys.argv[2]
 modify_hub_yaml(home, ip)
 modify_worker_yaml(eth_addr, ip)
 print('Your ethereum address is ' + eth_addr)
-print('Please request test eth on Rinkeby blockchain: https://faucet.rinkeby.io/')
-print('Or you may wait while we will send it to your address')
