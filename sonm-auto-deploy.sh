@@ -20,7 +20,7 @@ fi
 mkdir /etc/sonm/
 unzip -j SONM_MVP_0.3.6_configs.zip -d /etc/sonm/
 
-MYIP=$(curl -s icanhazip.com)
+MYIP=$(curl -s ipv4.icanhazip.com)
 
 green=`tput setaf 2`
 red=`tput setaf 1`
