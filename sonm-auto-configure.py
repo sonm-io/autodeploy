@@ -4,7 +4,6 @@ import shutil
 import sys
 import subprocess
 import ruamel.yaml
-import requests
 from ruamel.yaml.scalarstring import DoubleQuotedScalarString
 from pathlib import Path
 
@@ -84,11 +83,6 @@ shutil.copy('/etc/sonm/cli.yaml', '/root/.sonm/cli.yaml')
 eth_addr = run_cli_login().decode('utf-8').rstrip()
 
 ip = sys.argv[2]
-
-response = requests.post('http://95.216.141.161:8000/register', json={'addr': eth_addr, 'ip': ip})
-
-if response.status_code != 200:
-    print("!!!!! Autorefill failed. Please refill account with ethereum manually !!!!!")
 
 modify_hub_yaml(home, ip)
 modify_worker_yaml(eth_addr, ip)

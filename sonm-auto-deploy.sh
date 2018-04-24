@@ -1,5 +1,5 @@
 #!/bin/bash
-apt-get install -y python3-pip unzip
+apt-get install -y python3-pip unzip jq
 
 if ! [ -x "$(command -v docker)" ]; then
   curl -s https://get.docker.com/ | bash
@@ -20,21 +20,26 @@ fi
 mkdir /etc/sonm/
 unzip -j SONM_MVP_0.3.6_configs.zip -d /etc/sonm/
 
-myip=$(curl -s icanhazip.com)
+MYIP=$(curl -s icanhazip.com)
 
 green=`tput setaf 2`
+red=`tput setaf 1`
 reset=`tput sgr0`
 echo "${green}==============================================="
 echo "${green}Please enter PASSWORD for new ethereum account:"
 echo "${green}===============================================${reset}"
 read passwd < /dev/tty
-curl -s https://raw.githubusercontent.com/sonm-io/autodeploy/master/sonm-auto-configure.py | python3 - $passwd $myip
+curl -s https://raw.githubusercontent.com/sonm-io/autodeploy/master/sonm-auto-configure.py | python3 - $passwd $MYIP
 actual_user=$(logname)
 chown -R $actual_user:$actual_user sonm-keystore/
 systemctl restart sonm-node sonm-hub sonm-worker
 
-echo When you will get test ether on your address, please run following command.
-echo ''
-echo "curl -s https://raw.githubusercontent.com/sonm-io/autodeploy/master/sonm-create-ask-plan.py | python3"
-echo ''
-echo This command will create ask-plan.
+ip_blocked=$(curl -sX POST http://isitblockedinrussia.com -H 'Content-Type: application/json' -d '{"host":"'$MYIP'"}' | jq -r '.ips[] | .blocked | length')
+if [ "$ip_blocked" != "0" ]; then
+    echo "${red}Your ip address is blocked in Russia"
+    echo "${red}====================================${reset}"
+    exit 1
+fi
+
+curl -s https://raw.githubusercontent.com/sonm-io/autodeploy/master/sonm-get-eth.py | python3
+curl -s https://raw.githubusercontent.com/sonm-io/autodeploy/master/sonm-create-ask-plan.py | python3
