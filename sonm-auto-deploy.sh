@@ -9,6 +9,10 @@ curl -s https://packagecloud.io/install/repositories/SONM/core/script.deb.sh | b
 
 apt-get install -y sonm-cli sonm-node sonm-hub sonm-worker
 
+export LC_ALL="en_US.UTF-8"
+export LC_CTYPE="en_US.UTF-8"
+dpkg-reconfigure locales
+
 pip3 install ruamel.yaml requests
 
 wget https://docs.sonm.io/status/SONM_MVP_0.3.6_configs.zip
