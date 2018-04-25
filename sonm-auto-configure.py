@@ -64,7 +64,8 @@ def prepare_dir(path):
 
 passwd = sys.argv[1]
 
-home = str(Path.home())
+pathlib_ = Path((os.path.dirname(os.path.realpath(__file__)))).parts
+home = str(Path(*pathlib_[:2]) if Path(*pathlib_[:2]) == Path('/root') else Path(*pathlib_[:3]))
 
 keystore_ = home + '/sonm-keystore/'
 
