@@ -17,7 +17,9 @@ pip3 install ruamel.yaml requests
 
 wget https://docs.sonm.io/status/SONM_MVP_0.3.6_configs.zip
 rm -rf /etc/sonm/
-KSDIR=~/sonm-keystore
+actual_user=$(logname)
+home_dir=$(eval echo "~$(logname)")
+KSDIR=${home_dir}/sonm-keystore
 if [  -d "$KSDIR"  ]; then
    mv $KSDIR $KSDIR.$(date +%s)
 fi
@@ -34,7 +36,7 @@ echo "${green}Please enter PASSWORD for new ethereum account:"
 echo "${green}===============================================${reset}"
 read passwd < /dev/tty
 curl -s https://raw.githubusercontent.com/sonm-io/autodeploy/master/sonm-auto-configure.py | python3 - $passwd $MYIP
-actual_user=$(logname)
+
 chown -R $actual_user:$actual_user $KSDIR
 systemctl restart sonm-node sonm-hub sonm-worker
 
