@@ -1,0 +1,87 @@
+# An endpoint for client connections using cli
+# allowed format is "ip:port" to bind Worker to given IP address
+# or ":port" to bind Worker to all available IPs
+endpoint: ":15010"
+# Master key is a key that receives all payments for deals
+# This worker should be confirmed by master via sonmcli master confirm,
+# it's eth addr can be found in logs.
+# Private key is also exported in /var/lib/sonm/worker_keystore with "sonm" passphrase
+# This option is required.
+master: {{MASTER_ADDRESS}}
+
+# NAT punching settings.
+npp:
+  rendezvous:
+    endpoints:
+      - {{RENDEZVOUS_ENDPOINT}}
+  relay:
+    endpoints:
+      - {{RELAY_ENDPOINT}}
+
+#  Resources section is available only on Linux
+#  If configured, all tasks will share this pool of resources.
+#  This pool is a parent control group.
+#  Format is Open Container Initiative Runtime Specification:
+#resources:
+#  cgroup: insonmnia
+#  resources:
+#    # https://github.com/opencontainers/runtime-spec/blob/master/config-linux.md#memory
+#    memory:
+#      limit: 1000
+#    # https://github.com/opencontainers/runtime-spec/blob/master/config-linux.md#cpu
+#    cpu:
+#      quota: 1024
+#      cpus: "2-3"
+#    # https://github.com/opencontainers/runtime-spec/blob/master/config-linux.md#network
+#    network:
+#      classID: 1048577
+
+# A list of IPs that can be used to reach the worker, optional param. If not provided, worker's interfaces will
+# be scanned for such IPs (if there's no firewall settings).
+# Ignored if firewall settings are not null.
+# public_ip_addrs: ["12.34.56.78", "1.2.3.4"]
+
+logging:
+  # The desired logging level.
+  # Allowed values are "debug", "info", "warn", "error", "panic" and "fatal"
+  level: debug
+
+store:
+  path: "{{WORKER_STORE_PATH}}"
+
+benchmarks:
+  # URL to download benchmark list, use `file://` schema to load file from a filesystem.
+  url: "https://raw.githubusercontent.com/sonm-io/benchmarks-list/master/list.json"
+
+whitelist:
+  # URL to downloads list of allowed containers.
+  url: "https://raw.githubusercontent.com/sonm-io/allowed-list/master/general_whitelist.json"
+  enabled: true
+
+matcher:
+  poll_delay: 10s
+  query_limit: 100
+
+dwh:
+  endpoint: {{DWH_ENDPOINT}}
+
+plugins:
+  socket_dir: /run/docker/plugins
+
+  {{GPU_SETTINGS}}
+
+  volume:
+    root: /var/lib/docker-volumes
+    drivers:
+#      cifs: {}
+
+  overlay:
+    drivers:
+      tinc:
+        enabled: true
+      l2tp:
+        enabled: true
+
+# metrics_listen_addr is addr to bind prometheus
+# metrics exporter endpoint.
+metrics_listen_addr: "127.0.0.1:14001"
