@@ -1,0 +1,6 @@
+ethereum:
+   # path to keystore
+  key_store: "{{KEYSTORE}}"
+  # passphrase for keystore
+  pass_phrase: "{{PASSWORD}}"
+output_format: simple

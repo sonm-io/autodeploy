@@ -1,0 +1,51 @@
+# Local Node settings
+node:
+  # Node's port to listen for client connection
+  bind_port: 15030
+
+# NAT punching settings.
+npp:
+  # Rendezvous settings.
+  rendezvous:
+    endpoints:
+      - {{RENDEZVOUS_ENDPOINT}}
+  relay:
+    endpoints:
+      - {{RELAY_ENDPOINT}}
+
+# DWH service settings
+dwh:
+  # marketplace gRPC endpoint, required
+  endpoint: "{{DWH_ENDPOINT}}"
+
+# Matcher settings.
+# Matcher is routine that catches created BID orders and try to
+# open deal with most profitable ASK order that fits resource requirements.
+matcher:
+  poll_delay: 30s
+  query_limit: 10
+
+benchmarks:
+  # URL to download benchmark list, use `file://` schema to load file from a filesystem.
+  url: "https://raw.githubusercontent.com/sonm-io/benchmarks-list/master/list.json"
+
+# Logging settings.
+log:
+  # The desired logging level.
+  # Allowed values are "debug", "info", "warn", "error", "panic" and "fatal"
+  level: debug
+
+# Settings for Ethereum keys
+ethereum:
+  # path to keystore
+  key_store: "{{KEYSTORE}}"
+  # passphrase for keystore
+  pass_phrase: "{{PASSWORD}}"
+
+# Worker management settings.
+# Set this if you have your own Worker and want to manage it.
+worker:
+  # endpoint is Worker's gRPC endpoint for client connections.
+  endpoint: "127.0.0.1:15010"
+
+metrics_listen_addr: "127.0.0.1:14003"
