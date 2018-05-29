@@ -69,6 +69,7 @@ plugins:
   socket_dir: /run/docker/plugins
 
   {{GPU_SETTINGS}}
+    {{GPU_TYPE}}
 
   volume:
     root: /var/lib/docker-volumes

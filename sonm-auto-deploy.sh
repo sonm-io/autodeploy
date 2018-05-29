@@ -3,13 +3,19 @@
 # Exit script as soon as a command fails.
 set -o errexit
 
-worker_config="worker_default.yaml"
-node_config="node_default.yaml"
+worker_config="worker-default.yaml"
+node_config="node-default.yaml"
 cli_config="cli.yaml"
 actual_user=$(logname)
 mkdir -p ~/.sonm/
 
 remove_previous_version() {
+    if systemctl is-active sonm-worker; then
+        systemctl stop sonm-worker && echo "sonm-worker stopped";
+    fi
+    if systemctl is-active sonm-node; then
+        systemctl stop sonm-node && echo "sonm-node stopped";
+    fi
     dpkg -P $(dpkg --get-selections | grep -v deinstall | grep sonm | awk '{print $1}')
     rm -rf /etc/sonm
     rm -rf /var/lib/sonm
@@ -76,23 +82,29 @@ modify_config() {
 
 resolve_gpu() {
     if [[ $(lsmod | grep amd) ]]; then
-        GPU_SETTINGS="gpus:\n\\ \\ \\ \\ radeon: {}"
+        GPU_TYPE="radeon: {}"
+        GPU_SETTINGS="gpus:"
         echo detected RADEON GPU
     elif [[ $(lsmod | grep nvidia) ]]; then
-        GPU_SETTINGS="gpus:\n\\ \\ \\ \\ nvidia: {}"
+        GPU_TYPE="nvidia: {}"
+        GPU_SETTINGS="gpus:"
         echo detected NVIDIA GPU
     else
         GPU_SETTINGS=""
+        GPU_TYPE=""
         echo no GPU detected
     fi
 }
 
 resolve_worker_key() {
-    keystore_file=$(ls $WORKER_KEY_PATH)
     x=0
-    while [ "$x" -lt 10 -a ! -e $WORKER_KEY_PATH ]; do
-            x=$((x+1))
-            sleep .1
+    while [ "$x" -lt 100 ]; do
+        x=$((x+1))
+        sleep .1
+        if [[ $(ls $WORKER_KEY_PATH/) ]]; then
+            keystore_file=$(ls $WORKER_KEY_PATH)
+            break
+        fi
     done
     WORKER_ADDRESS=$(cat $WORKER_KEY_PATH/$keystore_file | jq '.address')
 }
@@ -109,7 +121,11 @@ read_password
 echo setting up cli...
 modify_config "cli_template.yaml" $cli_config
 mv $cli_config ~/.sonm/$cli_config
-MASTER_ADDRESS=$(sonmcli login | head -n 1| cut -c14-)
+mkdir -p $KEYSTORE
+chown -R $actual_user:$actual_user $KEYSTORE
+su - $actual_user -c "sonmcli login"
+MASTER_ADDRESS=$(su - $actual_user -c "sonmcli login | head -n 1| cut -c14-")
+chmod +r $KEYSTORE/*
 
 #node
 echo setting up node...
@@ -123,10 +139,11 @@ modify_config "worker_template.yaml" $worker_config
 mv $worker_config /etc/sonm/$worker_config
 
 echo starting node and worker
+
 systemctl start sonm-worker sonm-node
 
 echo "wait for confirm worker"
 resolve_worker_key
 
 #confirm worker
-sonmcli master confirm $WORKER_ADDRESS
+su - $actual_user -c "sonmcli master confirm $WORKER_ADDRESS"

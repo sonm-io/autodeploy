@@ -3,5 +3,5 @@ RELAY_ENDPOINT="92.53.69.24:12240"
 DWH_ENDPOINT="3f46ed4f779fd378f630d8cd996796c69a7738d2@192.99.232.105:15021"
 KEYSTORE="/etc/sonm/sonm-keystore"
 WORKER_STORE_PATH=/var/lib/sonm/worker.boltdb
-WORKER_KEY_PATH=/var/lib/sonm/worker_keystore/
+WORKER_KEY_PATH=/var/lib/sonm/worker_keystore
 NODE_KEY=$KEYSTORE/state/data
