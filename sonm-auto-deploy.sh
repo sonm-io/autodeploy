@@ -123,6 +123,7 @@ modify_config "cli_template.yaml" $cli_config
 mv $cli_config ~/.sonm/$cli_config
 mkdir -p $KEYSTORE
 chown -R $actual_user:$actual_user $KEYSTORE
+chown -R $actual_user:$actual_user ~/.sonm
 su - $actual_user -c "sonmcli login"
 MASTER_ADDRESS=$(su - $actual_user -c "sonmcli login | head -n 1| cut -c14-")
 chmod +r $KEYSTORE/*
