@@ -144,10 +144,10 @@ set_up_optimus
 
 echo starting node, worker and optimus
 systemctl start sonm-worker sonm-node sonm-optimus
-sleep 10
 #confirm worker
 echo "wait for confirm worker"
 resolve_worker_key
+sleep 10
 echo "worker address ${WORKER_ADDRESS}"
 echo "if you have error like '[ERR] Cannot approve Worker's request', please run following commands later:"
 echo "sonmcli master confirm ${WORKER_ADDRESS}"
