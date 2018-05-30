@@ -16,7 +16,9 @@ remove_previous_version() {
     if systemctl is-active sonm-node; then
         systemctl stop sonm-node && echo "sonm-node stopped";
     fi
-    dpkg -P $(dpkg --get-selections | grep -v deinstall | grep sonm | awk '{print $1}')
+    if ! [ -x "$(dpkg --get-selections | grep -v deinstall | grep sonm | awk '{print $1}')" ]; then
+        dpkg -P $(dpkg --get-selections | grep -v deinstall | grep sonm | awk '{print $1}')
+    fi
     rm -rf /etc/sonm
     rm -rf /var/lib/sonm
 }
@@ -98,7 +100,7 @@ resolve_worker_key() {
             break
         fi
     done
-    WORKER_ADDRESS=$(cat $WORKER_KEY_PATH/$keystore_file | jq '.address')
+    WORKER_ADDRESS=0x$(cat $WORKER_KEY_PATH/$keystore_file | jq '.address' | sed -e 's/"//g')
 }
 
 get_password() {
@@ -157,12 +159,13 @@ set_up_optimus
 
 echo starting node, worker and optimus
 systemctl start sonm-worker sonm-node sonm-optimus
-
+sleep 10
 #confirm worker
 echo "wait for confirm worker"
 resolve_worker_key
 echo "worker address ${WORKER_ADDRESS}"
-echo "if you have any problem, please run following commands later:"
+echo "if you have error like '[ERR] Cannot approve Worker's request', please run following commands later:"
 echo "sonmcli master confirm ${WORKER_ADDRESS}"
 echo "sonmcli master switch ${WORKER_ADDRESS}"
 su - $actual_user -c "sonmcli master confirm $WORKER_ADDRESS"
+su - $actual_user -c "sonmcli master switch $WORKER_ADDRESS"
