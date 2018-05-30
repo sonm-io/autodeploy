@@ -82,8 +82,10 @@ resolve_worker_key() {
         x=$((x+1))
         sleep .1
         if [ -d "${WORKER_KEY_PATH}" ]; then
-            keystore_file=$(ls $WORKER_KEY_PATH)
-            break
+            if [[ $(ls $WORKER_KEY_PATH/) ]]; then
+                keystore_file=$(ls $WORKER_KEY_PATH)
+                break
+            fi
         fi
     done
     WORKER_ADDRESS=0x$(cat $WORKER_KEY_PATH/$keystore_file | jq '.address' | sed -e 's/"//g')
