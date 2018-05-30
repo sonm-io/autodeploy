@@ -9,7 +9,7 @@ trap cleanup EXIT
 download_url='https://packagecloud.io/install/repositories/SONM/core/script.deb.sh'
 node_config="node-default.yaml"
 cli_config="cli.yaml"
-actual_user=$(logname)
+if [ $SUDO_USER ]; then actual_user=$SUDO_USER; else actual_user=`whoami`; fi
 
 cleanup() {
     rm -f *_template.yaml
