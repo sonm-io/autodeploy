@@ -92,7 +92,7 @@ resolve_gpu() {
 
 resolve_worker_key() {
     x=0
-    while [ "$x" -lt 100 ]; do
+    while [ "$x" -lt 300 ]; do
         x=$((x+1))
         sleep .1
         if [[ $(ls $WORKER_KEY_PATH/) ]]; then
