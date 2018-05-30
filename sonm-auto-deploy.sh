@@ -2,7 +2,7 @@
 
 # Exit script as soon as a command fails.
 set -o errexit
-
+download_url='https://packagecloud.io/install/repositories/SONM/core/script.deb.sh'
 worker_config="worker-default.yaml"
 node_config="node-default.yaml"
 cli_config="cli.yaml"
@@ -35,7 +35,7 @@ install_dependency() {
 }
 
 download_artifacts() {
-    curl -s https://packagecloud.io/install/repositories/SONM/core/script.deb.sh | bash
+    curl -s $download_url | bash
     apt-get install -y sonm-cli sonm-node sonm-worker sonm-optimus
 }
 
