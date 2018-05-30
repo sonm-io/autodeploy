@@ -9,20 +9,6 @@ cli_config="cli.yaml"
 optimus_config="optimus-default.yaml"
 actual_user=$(logname)
 
-remove_previous_version() {
-    if systemctl is-active sonm-worker; then
-        systemctl stop sonm-worker && echo "sonm-worker stopped";
-    fi
-    if systemctl is-active sonm-node; then
-        systemctl stop sonm-node && echo "sonm-node stopped";
-    fi
-    if ! [ -x "$(dpkg --get-selections | grep -v deinstall | grep sonm | awk '{print $1}')" ]; then
-        dpkg -P $(dpkg --get-selections | grep -v deinstall | grep sonm | awk '{print $1}')
-    fi
-    rm -rf /etc/sonm
-    rm -rf /var/lib/sonm
-}
-
 install_docker() {
     if ! [ -x "$(command -v docker)" ]; then
         curl -s https://get.docker.com/ | bash
@@ -104,17 +90,17 @@ resolve_worker_key() {
 }
 
 get_password() {
-     PASSWORD=$(cat ~/.sonm/$cli_config | grep pass_phrase | cut -c16- | sed -e 's/"//g')
+     PASSWORD=$(cat /home/$actual_user/.sonm/$cli_config | grep pass_phrase | cut -c16- | sed -e 's/"//g')
 }
 
 set_up_cli() {
     echo setting up cli...
     modify_config "cli_template.yaml" $cli_config
     mkdir -p $KEYSTORE
-    mkdir -p ~/.sonm/
-    mv $cli_config ~/.sonm/$cli_config
+    mkdir -p /home/$actual_user/.sonm/
+    mv $cli_config /home/$actual_user/.sonm/$cli_config
     chown -R $actual_user:$actual_user $KEYSTORE
-    chown -R $actual_user:$actual_user ~/.sonm
+    chown -R $actual_user:$actual_user /home/$actual_user/.sonm
     su - $actual_user -c "sonmcli login"
     sleep 1
     MASTER_ADDRESS=$(su - $actual_user -c "sonmcli login | head -n 1| cut -c14-")
@@ -140,7 +126,6 @@ set_up_optimus() {
     mv $optimus_config /etc/sonm/$optimus_config
 }
 
-remove_previous_version
 install_dependency
 install_docker
 download_artifacts
