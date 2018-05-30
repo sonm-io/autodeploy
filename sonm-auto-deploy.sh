@@ -81,7 +81,7 @@ resolve_worker_key() {
     while [ "$x" -lt 300 ]; do
         x=$((x+1))
         sleep .1
-        if [[ $(ls $WORKER_KEY_PATH/) ]]; then
+        if [ -d "${WORKER_KEY_PATH}" ]; then
             keystore_file=$(ls $WORKER_KEY_PATH)
             break
         fi
