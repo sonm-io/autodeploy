@@ -7,12 +7,6 @@ node_config="node-default.yaml"
 cli_config="cli.yaml"
 actual_user=$(logname)
 
-install_docker() {
-    if ! [ -x "$(command -v docker)" ]; then
-        curl -s https://get.docker.com/ | bash
-    fi
-}
-
 install_dependency() {
     apt-get update
     apt-get install -y jq curl wget
@@ -81,7 +75,6 @@ set_up_node() {
 }
 
 install_dependency
-install_docker
 download_artifacts
 download_templates
 load_variables
