@@ -11,7 +11,7 @@ worker_config="worker-default.yaml"
 node_config="node-default.yaml"
 cli_config="cli.yaml"
 optimus_config="optimus-default.yaml"
-actual_user=$(logname)
+if [ $SUDO_USER ]; then actual_user=$SUDO_USER; else actual_user=`whoami`; fi
 
 cleanup() {
     rm -f *_template.yaml
