@@ -142,7 +142,7 @@ get_password
 set_up_node
 #worker
 set_up_worker
-set_up_optimus
+
 
 echo starting node, worker and optimus
 systemctl start sonm-worker sonm-node sonm-optimus
@@ -156,3 +156,5 @@ echo "sonmcli master confirm ${WORKER_ADDRESS}"
 echo "sonmcli worker switch ${WORKER_ADDRESS}@127.0.0.1:15010"
 su - $actual_user -c "sonmcli master confirm $WORKER_ADDRESS"
 su - $actual_user -c "sonmcli worker switch $WORKER_ADDRESS@127.0.0.1:15010"
+
+set_up_optimus
