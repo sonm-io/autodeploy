@@ -153,6 +153,6 @@ sleep 10
 echo "worker address ${WORKER_ADDRESS}"
 echo "if you have error like '[ERR] Cannot approve Worker's request', please run following commands later:"
 echo "sonmcli master confirm ${WORKER_ADDRESS}"
-echo "sonmcli worker switch ${WORKER_ADDRESS}"
+echo "sonmcli worker switch ${WORKER_ADDRESS}@127.0.0.1:15010"
 su - $actual_user -c "sonmcli master confirm $WORKER_ADDRESS"
-su - $actual_user -c "sonmcli worker switch $WORKER_ADDRESS"
+su - $actual_user -c "sonmcli worker switch $WORKER_ADDRESS@127.0.0.1:15010"
