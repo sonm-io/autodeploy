@@ -145,7 +145,7 @@ set_up_worker
 
 
 echo starting node, worker and optimus
-systemctl start sonm-worker sonm-node sonm-optimus
+systemctl start sonm-worker sonm-node
 #confirm worker
 echo "wait for confirm worker"
 resolve_worker_key
@@ -158,3 +158,4 @@ su - $actual_user -c "sonmcli master confirm $WORKER_ADDRESS"
 su - $actual_user -c "sonmcli worker switch $WORKER_ADDRESS@127.0.0.1:15010"
 
 set_up_optimus
+systemctl start sonm-optimus
