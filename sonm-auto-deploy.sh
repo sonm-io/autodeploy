@@ -6,8 +6,8 @@ set -o errexit
 worker_config="worker-default.yaml"
 node_config="node-default.yaml"
 cli_config="cli.yaml"
+optimus_config="optimus-default.yaml"
 actual_user=$(logname)
-mkdir -p ~/.sonm/
 
 remove_previous_version() {
     if systemctl is-active sonm-worker; then
@@ -32,24 +32,16 @@ install_dependency() {
     apt-get install -y jq curl wget
 }
 
-read_password() {
-    green=`tput setaf 2`
-    reset=`tput sgr0`
-    echo "${green}==============================================="
-    echo "${green}Please enter PASSWORD for new ethereum account:"
-    echo "${green}===============================================${reset}"
-    read PASSWORD < /dev/tty
-}
-
 download_artifacts() {
     curl -s https://packagecloud.io/install/repositories/SONM/core/script.deb.sh | bash
-    apt-get install -y sonm-cli sonm-node sonm-worker
+    apt-get install -y sonm-cli sonm-node sonm-worker sonm-optimus
 }
 
 download_templates() {
     wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/master/worker_template.yaml -O worker_template.yaml
     wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/master/node_template.yaml -O node_template.yaml
     wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/master/cli_template.yaml -O cli_template.yaml
+    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/master/optimus_template.yaml -O optimus_template.yaml
     wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/master/variables.txt -O variables.txt
 }
 
@@ -109,42 +101,68 @@ resolve_worker_key() {
     WORKER_ADDRESS=$(cat $WORKER_KEY_PATH/$keystore_file | jq '.address')
 }
 
+get_password() {
+     PASSWORD=$(cat ~/.sonm/$cli_config | grep pass_phrase | cut -c16- | sed -e 's/"//g')
+}
+
+set_up_cli() {
+    echo setting up cli...
+    modify_config "cli_template.yaml" $cli_config
+    mkdir -p $KEYSTORE
+    mkdir -p ~/.sonm/
+    mv $cli_config ~/.sonm/$cli_config
+    chown -R $actual_user:$actual_user $KEYSTORE
+    chown -R $actual_user:$actual_user ~/.sonm
+    su - $actual_user -c "sonmcli login"
+    sleep 1
+    MASTER_ADDRESS=$(su - $actual_user -c "sonmcli login | head -n 1| cut -c14-")
+    chmod +r $KEYSTORE/*
+}
+
+set_up_node() {
+    echo setting up node...
+    modify_config "node_template.yaml" $node_config
+    mv $node_config /etc/sonm/$node_config
+}
+
+set_up_worker() {
+    echo setting up worker...
+    resolve_gpu
+    modify_config "worker_template.yaml" $worker_config
+    mv $worker_config /etc/sonm/$worker_config
+}
+
+set_up_optimus() {
+    echo setting up optimus...
+    modify_config "optimus_template.yaml" $optimus_config
+    mv $optimus_config /etc/sonm/$optimus_config
+}
+
 remove_previous_version
 install_dependency
 install_docker
 download_artifacts
 download_templates
 load_variables
-read_password
 
 #cli
-echo setting up cli...
-modify_config "cli_template.yaml" $cli_config
-mv $cli_config ~/.sonm/$cli_config
-mkdir -p $KEYSTORE
-chown -R $actual_user:$actual_user $KEYSTORE
-chown -R $actual_user:$actual_user ~/.sonm
-su - $actual_user -c "sonmcli login"
-MASTER_ADDRESS=$(su - $actual_user -c "sonmcli login | head -n 1| cut -c14-")
-chmod +r $KEYSTORE/*
+set_up_cli
+get_password
 
 #node
-echo setting up node...
-modify_config "node_template.yaml" $node_config
-mv $node_config /etc/sonm/$node_config
-
+set_up_node
 #worker
-echo setting up worker...
-resolve_gpu
-modify_config "worker_template.yaml" $worker_config
-mv $worker_config /etc/sonm/$worker_config
+set_up_worker
+set_up_optimus
 
-echo starting node and worker
-
-systemctl start sonm-worker sonm-node
-
-echo "wait for confirm worker"
-resolve_worker_key
+echo starting node, worker and optimus
+systemctl start sonm-worker sonm-node sonm-optimus
 
 #confirm worker
+echo "wait for confirm worker"
+resolve_worker_key
+echo "worker address ${WORKER_ADDRESS}"
+echo "if you have any problem, please run following commands later:"
+echo "sonmcli master confirm ${WORKER_ADDRESS}"
+echo "sonmcli master switch ${WORKER_ADDRESS}"
 su - $actual_user -c "sonmcli master confirm $WORKER_ADDRESS"
