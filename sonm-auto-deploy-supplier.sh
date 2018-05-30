@@ -2,12 +2,21 @@
 
 # Exit script as soon as a command fails.
 set -o errexit
+
+# Executes cleanup function at script exit.
+trap cleanup EXIT
+
 download_url='https://packagecloud.io/install/repositories/SONM/core/script.deb.sh'
 worker_config="worker-default.yaml"
 node_config="node-default.yaml"
 cli_config="cli.yaml"
 optimus_config="optimus-default.yaml"
 actual_user=$(logname)
+
+cleanup() {
+    rm -f *_template.yaml
+    rm -f variables.txt
+}
 
 install_docker() {
     if ! [ -x "$(command -v docker)" ]; then
