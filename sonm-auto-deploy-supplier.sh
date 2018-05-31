@@ -115,7 +115,7 @@ set_up_cli() {
     su - $actual_user -c "sonmcli login"
     sleep 1
     MASTER_ADDRESS=$(su - $actual_user -c "sonmcli login | head -n 1| cut -c14-")
-    chmod +r $KEYSTORE/*
+    chmod -R 755 $KEYSTORE/*
 }
 
 set_up_node() {
