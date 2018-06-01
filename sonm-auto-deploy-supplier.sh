@@ -12,6 +12,7 @@ node_config="node-default.yaml"
 cli_config="cli.yaml"
 optimus_config="optimus-default.yaml"
 if [ $SUDO_USER ]; then actual_user=$SUDO_USER; else actual_user=`whoami`; fi
+actual_user_home=$(eval echo ~$actual_user)
 
 cleanup() {
     rm -f *_template.yaml
@@ -101,17 +102,17 @@ resolve_worker_key() {
 }
 
 get_password() {
-     PASSWORD=$(cat /home/$actual_user/.sonm/$cli_config | grep pass_phrase | cut -c16- | sed -e 's/"//g')
+    PASSWORD=$(cat $actual_user_home/.sonm/$cli_config | grep pass_phrase | cut -c16- | sed -e 's/"//g')
 }
 
 set_up_cli() {
     echo setting up cli...
     modify_config "cli_template.yaml" $cli_config
     mkdir -p $KEYSTORE
-    mkdir -p /home/$actual_user/.sonm/
-    mv $cli_config /home/$actual_user/.sonm/$cli_config
+    mkdir -p $actual_user_home/.sonm/
+    mv $cli_config $actual_user_home/.sonm/$cli_config
     chown -R $actual_user:$actual_user $KEYSTORE
-    chown -R $actual_user:$actual_user /home/$actual_user/.sonm
+    chown -R $actual_user:$actual_user $actual_user_home/.sonm
     su - $actual_user -c "sonmcli login"
     sleep 1
     MASTER_ADDRESS=$(su - $actual_user -c "sonmcli login | head -n 1| cut -c14-")
