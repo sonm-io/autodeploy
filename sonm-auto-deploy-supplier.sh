@@ -102,11 +102,15 @@ resolve_worker_key() {
 }
 
 get_password() {
-    PASSWORD=$(cat $actual_user_home/.sonm/$cli_config | grep pass_phrase | cut -c16- | sed -e 's/"//g')
+    if [ -f "$actual_user_home/.sonm/$cli_config" ]
+    then
+        PASSWORD=$(cat $actual_user_home/.sonm/$cli_config | grep pass_phrase | cut -c16- | sed -e 's/"//g')
+    fi
 }
 
 set_up_cli() {
     echo setting up cli...
+    get_password
     modify_config "cli_template.yaml" $cli_config
     mkdir -p $KEYSTORE
     mkdir -p $actual_user_home/.sonm/
@@ -115,8 +119,9 @@ set_up_cli() {
     chown -R $actual_user:$actual_user $actual_user_home/.sonm
     su - $actual_user -c "sonmcli login"
     sleep 1
-    MASTER_ADDRESS=$(su - $actual_user -c "sonmcli login | head -n 1| cut -c14-")
+    MASTER_ADDRESS=$(su - $actual_user -c "sonmcli login | grep 'Default key:'| cut -c14-")
     chmod -R 755 $KEYSTORE/*
+    get_password
 }
 
 set_up_node() {
@@ -146,7 +151,6 @@ load_variables
 
 #cli
 set_up_cli
-get_password
 
 #node
 set_up_node
@@ -155,7 +159,7 @@ set_up_worker
 
 
 echo starting node, worker and optimus
-systemctl start sonm-worker sonm-node
+systemctl restart sonm-worker sonm-node
 #confirm worker
 echo "wait for confirm worker"
 resolve_worker_key
@@ -165,4 +169,4 @@ su - $actual_user -c "sonmcli master confirm $WORKER_ADDRESS"
 su - $actual_user -c "sonmcli worker switch $WORKER_ADDRESS@127.0.0.1:15010"
 
 set_up_optimus
-systemctl start sonm-optimus
+systemctl restart sonm-optimus
