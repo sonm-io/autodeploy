@@ -6,7 +6,7 @@ set -o errexit
 # Executes cleanup function at script exit.
 trap cleanup EXIT
 
-download_url='https://packagecloud.io/install/repositories/SONM/core/script.deb.sh'
+download_url='https://packagecloud.io/install/repositories/SONM/core-dev/script.deb.sh'
 worker_config="worker-default.yaml"
 node_config="node-default.yaml"
 cli_config="cli.yaml"
@@ -120,7 +120,7 @@ set_up_cli() {
     su - $actual_user -c "sonmcli login"
     sleep 1
     MASTER_ADDRESS=$(su - $actual_user -c "sonmcli login | grep 'Default key:'| cut -c14-")
-    chmod -R 755 $KEYSTORE/*
+    chmod -R 777 $KEYSTORE/*
     get_password
 }
 
