@@ -161,12 +161,18 @@ set_up_worker
 echo starting node, worker and optimus
 systemctl restart sonm-worker sonm-node
 #confirm worker
-echo "wait for confirm worker"
+echo "Resolving worker key"
 resolve_worker_key
+echo "Worker address ${WORKER_ADDRESS}"
 sleep 10
-echo "worker address ${WORKER_ADDRESS}"
-su - $actual_user -c "sonmcli master confirm $WORKER_ADDRESS"
-su - $actual_user -c "sonmcli worker switch $WORKER_ADDRESS@127.0.0.1:15010"
+if [ $(su - $actual_user -c "sonmcli master list --out=json | jq '.workers[] | select(.masterID==\"${MASTER_ADDRESS}\") | select(.slaveID==\"${WORKER_ADDRESS}\")' | jq -r 'select(has(\"confirmed\") | not)'") ]; then
+    echo "Wait for confirm worker"
+    su - $actual_user -c "sonmcli master confirm ${WORKER_ADDRESS}"
+else
+    echo "Worker already confirmed"
+fi
+echo "Switching to actual worker"
+su - $actual_user -c "sonmcli worker switch ${WORKER_ADDRESS}@127.0.0.1:15010"
 
 set_up_optimus
 systemctl restart sonm-optimus
