@@ -7,9 +7,17 @@ node:
 npp:
   # Rendezvous settings.
   rendezvous:
+    # Known rendezvous endpoints.
+    #
+    # Must be in ETHAddress@Host:Port format.
     endpoints:
       - {{RENDEZVOUS_ENDPOINT}}
+  # Relay settings.
   relay:
+    # Known relay endpoints.
+    #
+    # The format is Host:Port.
+    # Can be omitted, meaning that relaying is disabled.
     endpoints:
       - {{RELAY_ENDPOINT}}
 
@@ -41,11 +49,5 @@ ethereum:
   key_store: "{{KEYSTORE}}"
   # passphrase for keystore
   pass_phrase: "{{PASSWORD}}"
-
-# Worker management settings.
-# Set this if you have your own Worker and want to manage it.
-worker:
-  # endpoint is Worker's gRPC endpoint for client connections.
-  endpoint: "127.0.0.1:15010"
 
 metrics_listen_addr: "127.0.0.1:14003"
