@@ -12,7 +12,8 @@ ethereum: &ethereum
 
 # List of workers trusted endpoints this bot manages.
 workers:
- - {{WORKER_ADDRESS}}@127.0.0.1:15010
+  {{WORKER_ADDRESS}}@[::1]:15010:
+    epoch: 60s
 
 benchmarks:
   # URL to download benchmark list, use `file://` schema to load file from a filesystem.
@@ -40,7 +41,7 @@ optimization:
       max_iterations: 1000
     # Logistic function parameters.
     #
-    # The function has the following definition: 1 - (1 / exp(-alpha * (x - delta) / delta)).
+    # The function has the following definition: 1 - (1 / (1 + exp(-α * (x - ∂) / ∂))).
     # Used to calculate relative order weight, depending on its birth time.
     logistic:
       alpha: 10.0
