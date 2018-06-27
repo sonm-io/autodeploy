@@ -142,7 +142,7 @@ set_up_optimus() {
     modify_config "optimus_template.yaml" $optimus_config
     mv $optimus_config /etc/sonm/$optimus_config
 }
-
+rm  -f /etc/apt/sources.list.d/SONM_core.list
 install_dependency
 install_docker
 download_artifacts
