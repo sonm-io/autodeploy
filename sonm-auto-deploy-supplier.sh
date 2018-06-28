@@ -6,6 +6,7 @@ set -o errexit
 # Executes cleanup function at script exit.
 trap cleanup EXIT
 
+MASTER_ADDRESS=$1
 download_url='https://packagecloud.io/install/repositories/SONM/core/script.deb.sh'
 worker_config="worker-default.yaml"
 node_config="node-default.yaml"
@@ -21,10 +22,8 @@ cleanup() {
 
 
 validate_master() {
-    if [[ $1 =~ ^0x[a-fA-F0-9]{40}$ ]]; then
-        MASTER_ADDRESS=$1
-    else
-        echo "${1} is not a valid ethereum account"
+    if ! [[ $MASTER_ADDRESS =~ ^0x[a-fA-F0-9]{40}$ ]]; then
+        echo "Given address: '${MASTER_ADDRESS}' is not a valid ethereum address"
         exit 1
     fi
 }
