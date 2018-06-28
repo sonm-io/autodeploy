@@ -16,7 +16,7 @@ node:
   # Account settings.
   ethereum: *ethereum
   # Node trusted endpoint.
-  endpoint: {{ADMIN_ADDRESS}}@[::1]:15030
+  endpoint: {{ADMIN_ENDPOINT}}
 
 # Map of workers this bot manages defined by its trusted endpoints with their
 # settings.
