@@ -133,8 +133,8 @@ set_up_cli() {
     chown -R $actual_user:$actual_user $actual_user_home/.sonm
     su - $actual_user -c "sonmcli login"
     sleep 1
-    ADMIN_ADDRESS=$(su - $actual_user -c "sonmcli login | grep 'Default key:'| cut -c14-56")
-    ADMIN_ENDPOINT="${ADMIN_ADDRESS//\^M}@[::1]:15030"
+    ADMIN_ADDRESS=$(su - $actual_user -c "sonmcli login | grep 'Default key:' | cut -c14-56" | tr -d '\r')
+    ADMIN_ENDPOINT="${ADMIN_ADDRESS}@[::1]:15030"
     chmod -R 755 $KEYSTORE/*
     get_password
 }
