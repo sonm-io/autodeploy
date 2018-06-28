@@ -19,6 +19,16 @@ cleanup() {
     rm -f variables.txt
 }
 
+
+validate_master() {
+    if [[ $1 =~ ^0x[a-fA-F0-9]{40}$ ]]; then
+        MASTER_ADDRESS=$1
+    else
+        echo "${1} is not a valid ethereum account"
+        exit 1
+    fi
+}
+
 install_docker() {
     if ! [ -x "$(command -v docker)" ]; then
         curl -s https://get.docker.com/ | bash
@@ -28,6 +38,7 @@ install_docker() {
 install_dependency() {
     apt-get update
     apt-get install -y jq curl wget
+    resolve_gpu
 }
 
 download_artifacts() {
@@ -79,6 +90,10 @@ resolve_gpu() {
         GPU_TYPE="nvidia: {}"
         GPU_SETTINGS="gpus:"
         echo detected NVIDIA GPU
+        echo check nvidia-modprobe...
+        if ! [ -x "$(command -v nvidia-modprobe)" ]; then
+            apt-get install -y nvidia-modprobe
+        fi
     else
         GPU_SETTINGS=""
         GPU_TYPE=""
@@ -119,7 +134,7 @@ set_up_cli() {
     chown -R $actual_user:$actual_user $actual_user_home/.sonm
     su - $actual_user -c "sonmcli login"
     sleep 1
-    MASTER_ADDRESS=$(su - $actual_user -c "sonmcli login | grep 'Default key:'| cut -c14-")
+    ADMIN_ADDRESS=$(su - $actual_user -c "sonmcli login | grep 'Default key:'| cut -c14-")
     chmod -R 755 $KEYSTORE/*
     get_password
 }
@@ -132,7 +147,6 @@ set_up_node() {
 
 set_up_worker() {
     echo setting up worker...
-    resolve_gpu
     modify_config "worker_template.yaml" $worker_config
     mv $worker_config /etc/sonm/$worker_config
 }
@@ -143,6 +157,8 @@ set_up_optimus() {
     mv $optimus_config /etc/sonm/$optimus_config
 }
 
+
+validate_master
 install_dependency
 install_docker
 download_artifacts

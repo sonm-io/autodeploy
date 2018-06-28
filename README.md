@@ -1,7 +1,7 @@
 ## SONM autodeploy
 To remove SONM run command
  ```bash
-curl -s https://raw.githubusercontent.com/sonm-io/autodeploy/master/sonm-uninstall.sh | sudo bash
+sudo bash -c "$(curl -s https://raw.githubusercontent.com/sonm-io/autodeploy/master/sonm-uninstall.sh)"
 ```
 
 To install SONM for supplier run command:
