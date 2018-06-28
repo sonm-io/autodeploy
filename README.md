@@ -6,7 +6,7 @@ sudo bash -c "$(curl -s https://raw.githubusercontent.com/sonm-io/autodeploy/mas
 
 To install SONM for supplier run command:
  ```bash
-sudo bash -c "$(curl -s https://raw.githubusercontent.com/sonm-io/autodeploy/master/sonm-auto-deploy-supplier.sh)"
+sudo bash -c "$(curl -s https://raw.githubusercontent.com/sonm-io/autodeploy/master/sonm-auto-deploy-supplier.sh)" -s <YOUR MASTER ETH ADDRESS>
 ```
 
 To install SONM for consumer run command:
