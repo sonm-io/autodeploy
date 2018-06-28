@@ -133,7 +133,7 @@ set_up_cli() {
     chown -R $actual_user:$actual_user $actual_user_home/.sonm
     su - $actual_user -c "sonmcli login"
     sleep 1
-    ADMIN_ADDRESS=$(su - $actual_user -c "sonmcli login | grep 'Default key:'| cut -c14-")
+    ADMIN_ADDRESS=$(su - $actual_user -c "sonmcli login | grep 'Default key:'| cut -c14-56")
     chmod -R 755 $KEYSTORE/*
     get_password
 }
@@ -176,11 +176,9 @@ set_up_worker
 echo starting node, worker and optimus
 systemctl restart sonm-worker sonm-node
 #confirm worker
-echo "wait for confirm worker"
 resolve_worker_key
-sleep 10
 echo "worker address ${WORKER_ADDRESS}"
+echo "Switching to worker"
 su - $actual_user -c "sonmcli worker switch $WORKER_ADDRESS@127.0.0.1:15010"
-
 set_up_optimus
 systemctl restart sonm-optimus
