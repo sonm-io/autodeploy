@@ -16,7 +16,7 @@ node:
   # Account settings.
   ethereum: *ethereum
   # Node trusted endpoint.
-  endpoint: {{MASTER_ADDRESS}}@[::1]:15030
+  endpoint: {{ADMIN_ENDPOINT}}
 
 # Map of workers this bot manages defined by its trusted endpoints with their
 # settings.
@@ -49,6 +49,7 @@ workers:
     # Optional.
     # Default value is false.
     # dry_run: true
+    identity: anonymous
 
 benchmarks:
   # URL to download benchmark list, use `file://` schema to load file from a filesystem.

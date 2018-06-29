@@ -6,7 +6,7 @@ endpoint: ":15010"
 # Admin key is a key that allows to use worker management API without
 # configuring master key.
 # Useful for development and/or debugging.
-# admin: 0x000000000000000000000000000000000000000f
+admin: {{ADMIN_ADDRESS}}
 
 # Master key is a key that receives all payments for deals
 # This worker should be confirmed by master via sonmcli master confirm,

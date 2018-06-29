@@ -6,6 +6,7 @@ set -o errexit
 # Executes cleanup function at script exit.
 trap cleanup EXIT
 
+MASTER_ADDRESS=$1
 download_url='https://packagecloud.io/install/repositories/SONM/core-dev/script.deb.sh'
 worker_config="worker-default.yaml"
 node_config="node-default.yaml"
@@ -19,6 +20,14 @@ cleanup() {
     rm -f variables.txt
 }
 
+
+validate_master() {
+    if ! [[ $MASTER_ADDRESS =~ ^0x[a-fA-F0-9]{40}$ ]]; then
+        echo "Given address: '${MASTER_ADDRESS}' is not a valid ethereum address"
+        exit 1
+    fi
+}
+
 install_docker() {
     if ! [ -x "$(command -v docker)" ]; then
         curl -s https://get.docker.com/ | bash
@@ -28,6 +37,7 @@ install_docker() {
 install_dependency() {
     apt-get update
     apt-get install -y jq curl wget
+    resolve_gpu
 }
 
 download_artifacts() {
@@ -79,6 +89,10 @@ resolve_gpu() {
         GPU_TYPE="nvidia: {}"
         GPU_SETTINGS="gpus:"
         echo detected NVIDIA GPU
+        echo check nvidia-modprobe...
+        if ! [ -x "$(command -v nvidia-modprobe)" ]; then
+            apt-get install -y nvidia-modprobe
+        fi
     else
         GPU_SETTINGS=""
         GPU_TYPE=""
@@ -119,8 +133,9 @@ set_up_cli() {
     chown -R $actual_user:$actual_user $actual_user_home/.sonm
     su - $actual_user -c "sonmcli login"
     sleep 1
-    MASTER_ADDRESS=$(su - $actual_user -c "sonmcli login | grep 'Default key:'| cut -c14-")
-    chmod -R 777 $KEYSTORE/*
+    ADMIN_ADDRESS=$(su - $actual_user -c "sonmcli login | grep 'Default key:' | cut -c14-56" | tr -d '\r')
+    ADMIN_ENDPOINT="${ADMIN_ADDRESS}@[::1]:15030"
+    chmod -R 755 $KEYSTORE/*
     get_password
 }
 
@@ -132,7 +147,6 @@ set_up_node() {
 
 set_up_worker() {
     echo setting up worker...
-    resolve_gpu
     modify_config "worker_template.yaml" $worker_config
     mv $worker_config /etc/sonm/$worker_config
 }
@@ -142,7 +156,9 @@ set_up_optimus() {
     modify_config "optimus_template.yaml" $optimus_config
     mv $optimus_config /etc/sonm/$optimus_config
 }
+
 rm  -f /etc/apt/sources.list.d/SONM_core.list
+validate_master
 install_dependency
 install_docker
 download_artifacts
@@ -161,18 +177,9 @@ set_up_worker
 echo starting node, worker and optimus
 systemctl restart sonm-worker sonm-node
 #confirm worker
-echo "Resolving worker key"
 resolve_worker_key
-echo "Worker address ${WORKER_ADDRESS}"
-sleep 10
-if [ $(su - $actual_user -c "sonmcli master list --out=json | jq '.workers[] | select(.masterID==\"${MASTER_ADDRESS}\") | select(.slaveID==\"${WORKER_ADDRESS}\")' | jq -r 'select(has(\"confirmed\") | not)'") ]; then
-    echo "Wait for confirm worker"
-    su - $actual_user -c "sonmcli master confirm ${WORKER_ADDRESS}"
-else
-    echo "Worker already confirmed"
-fi
-echo "Switching to actual worker"
-su - $actual_user -c "sonmcli worker switch ${WORKER_ADDRESS}@127.0.0.1:15010"
-
+echo "worker address ${WORKER_ADDRESS}"
+echo "Switching to worker"
+su - $actual_user -c "sonmcli worker switch $WORKER_ADDRESS@127.0.0.1:15010"
 set_up_optimus
 systemctl restart sonm-optimus
