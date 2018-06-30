@@ -1,6 +1,6 @@
 RENDEZVOUS_ENDPOINT="1243742340d5504d88af3360036ec9019b933164@rendezvous.livenet.sonm.com:14099"
 RELAY_ENDPOINT="relay.livenet.sonm.com:12240"
-DWH_ENDPOINT="3f46ed4f779fd378f630d8cd996796c69a7738d2@dwh.livenet.sonm.com:15021"
+DWH_ENDPOINT="adfFCaC607A0A1b583c489977EAe413A62d4Bc73@dwh.livenet.sonm.com:15021"
 KEYSTORE="/etc/sonm/sonm-keystore"
 WORKER_STORE_PATH=/var/lib/sonm/worker.boltdb
 WORKER_KEY_PATH=/var/lib/sonm/worker_keystore
