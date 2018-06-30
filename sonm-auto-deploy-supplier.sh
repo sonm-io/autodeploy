@@ -7,7 +7,7 @@ set -o errexit
 trap cleanup EXIT
 
 MASTER_ADDRESS=$1
-download_url='https://packagecloud.io/install/repositories/SONM/core-dev/script.deb.sh'
+download_url='https://packagecloud.io/install/repositories/SONM/core/script.deb.sh'
 worker_config="worker-default.yaml"
 node_config="node-default.yaml"
 cli_config="cli.yaml"

@@ -6,7 +6,7 @@ set -o errexit
 # Executes cleanup function at script exit.
 trap cleanup EXIT
 
-download_url='https://packagecloud.io/install/repositories/SONM/core-dev/script.deb.sh'
+download_url='https://packagecloud.io/install/repositories/SONM/core/script.deb.sh'
 node_config="node-default.yaml"
 cli_config="cli.yaml"
 if [ $SUDO_USER ]; then actual_user=$SUDO_USER; else actual_user=`whoami`; fi
