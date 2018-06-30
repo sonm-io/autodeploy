@@ -46,11 +46,11 @@ download_artifacts() {
 }
 
 download_templates() {
-    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/dev/worker_template.yaml -O worker_template.yaml
-    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/dev/node_template.yaml -O node_template.yaml
-    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/dev/cli_template.yaml -O cli_template.yaml
-    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/dev/optimus_template.yaml -O optimus_template.yaml
-    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/dev/variables.txt -O variables.txt
+    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/devprod/worker_template.yaml -O worker_template.yaml
+    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/devprod/node_template.yaml -O node_template.yaml
+    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/devprod/cli_template.yaml -O cli_template.yaml
+    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/devprod/optimus_template.yaml -O optimus_template.yaml
+    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/devprod/variables.txt -O variables.txt
 }
 
 load_variables() {
