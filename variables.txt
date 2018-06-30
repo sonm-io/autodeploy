@@ -1,4 +1,4 @@
-RENDEZVOUS_ENDPOINT="1243742340d5504d88af3360036ec9019b933164@rendezvous.livenet.sonm.com:14099"
+RENDEZVOUS_ENDPOINT="5b7d6516fad04e10db726933bcd75447fd7b4b17@rendezvous.livenet.sonm.com:14099"
 RELAY_ENDPOINT="relay.livenet.sonm.com:12240"
 DWH_ENDPOINT="adfFCaC607A0A1b583c489977EAe413A62d4Bc73@dwh.livenet.sonm.com:15021"
 KEYSTORE="/etc/sonm/sonm-keystore"
