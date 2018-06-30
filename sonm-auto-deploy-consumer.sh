@@ -6,7 +6,7 @@ set -o errexit
 # Executes cleanup function at script exit.
 trap cleanup EXIT
 
-download_url='https://packagecloud.io/install/repositories/SONM/core/script.deb.sh'
+download_url='https://packagecloud.io/install/repositories/SONM/core-dev/script.deb.sh'
 node_config="node-default.yaml"
 cli_config="cli.yaml"
 if [ $SUDO_USER ]; then actual_user=$SUDO_USER; else actual_user=`whoami`; fi
@@ -28,9 +28,9 @@ download_artifacts() {
 }
 
 download_templates() {
-    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/master/node_template.yaml -O node_template.yaml
-    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/master/cli_template.yaml -O cli_template.yaml
-    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/master/variables.txt -O variables.txt
+    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/dev/node_template.yaml -O node_template.yaml
+    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/dev/cli_template.yaml -O cli_template.yaml
+    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/dev/variables.txt -O variables.txt
 }
 
 load_variables() {

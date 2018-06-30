@@ -7,7 +7,7 @@ set -o errexit
 trap cleanup EXIT
 
 MASTER_ADDRESS=$1
-download_url='https://packagecloud.io/install/repositories/SONM/core/script.deb.sh'
+download_url='https://packagecloud.io/install/repositories/SONM/core-dev/script.deb.sh'
 worker_config="worker-default.yaml"
 node_config="node-default.yaml"
 cli_config="cli.yaml"
@@ -46,11 +46,11 @@ download_artifacts() {
 }
 
 download_templates() {
-    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/master/worker_template.yaml -O worker_template.yaml
-    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/master/node_template.yaml -O node_template.yaml
-    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/master/cli_template.yaml -O cli_template.yaml
-    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/master/optimus_template.yaml -O optimus_template.yaml
-    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/master/variables.txt -O variables.txt
+    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/devprod/worker_template.yaml -O worker_template.yaml
+    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/devprod/node_template.yaml -O node_template.yaml
+    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/devprod/cli_template.yaml -O cli_template.yaml
+    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/devprod/optimus_template.yaml -O optimus_template.yaml
+    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/devprod/variables.txt -O variables.txt
 }
 
 load_variables() {
@@ -157,7 +157,7 @@ set_up_optimus() {
     mv $optimus_config /etc/sonm/$optimus_config
 }
 
-
+rm  -f /etc/apt/sources.list.d/SONM_core.list
 validate_master
 install_dependency
 install_docker

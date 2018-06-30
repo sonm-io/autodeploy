@@ -10,7 +10,6 @@ ethereum: &ethereum
   key_store: "{{KEYSTORE}}"
   # passphrase for keystore
   pass_phrase: "{{PASSWORD}}"
-
 # Node settings.
 node:
   # Account settings.

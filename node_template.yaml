@@ -2,7 +2,6 @@
 node:
   # Node's port to listen for client connection
   bind_port: 15030
-
 # NAT punching settings.
 npp:
   # Rendezvous settings.
