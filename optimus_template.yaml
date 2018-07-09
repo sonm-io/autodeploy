@@ -49,6 +49,7 @@ workers:
     # Default value is false.
     # dry_run: true
     identity: anonymous
+    prelude_timeout: 30s
 
 benchmarks:
   # URL to download benchmark list, use `file://` schema to load file from a filesystem.
