@@ -42,7 +42,7 @@ install_dependency() {
 
 download_artifacts() {
     curl -s $download_url | bash
-    apt-get install -y sonm-cli sonm-node sonm-worker sonm-optimus
+    apt-get -o DPkg::options::=--force-confmiss --reinstall install -y sonm-cli sonm-node sonm-worker sonm-optimus
 }
 
 download_templates() {

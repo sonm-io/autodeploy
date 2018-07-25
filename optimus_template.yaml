@@ -22,7 +22,7 @@ node:
 workers:
   # Use worker ETH address here, but the account used must have the proper
   # access.
-  {{WORKER_ADDRESS}}@[::1]:15010:
+  {{WORKER_ADDRESS}}@127.0.0.1:15010:
     # Account settings.
     ethereum: *ethereum
     # Epoch is an interval of scanning worker's free resources and selling them
