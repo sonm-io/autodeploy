@@ -14,9 +14,13 @@ node_config="node-default.yaml"
 cli_config="cli.yaml"
 optimus_config="optimus-default.yaml"
 if [ ${DEV} ]; then
+    echo Installing SONM dev packages
+    rm  -f /etc/apt/sources.list.d/SONM_core.list
     branch='dev'
     download_url='https://packagecloud.io/install/repositories/SONM/core-dev/script.deb.sh'
 else
+    echo Installing SONM packages
+    rm  -f /etc/apt/sources.list.d/SONM_core-dev.list
     branch='master'
     download_url='https://packagecloud.io/install/repositories/SONM/core/script.deb.sh'
 fi
@@ -165,8 +169,6 @@ set_up_optimus() {
     mv ${optimus_config} /etc/sonm/${optimus_config}
 }
 
-rm  -f /etc/apt/sources.list.d/SONM_core-dev.list
-rm  -f /etc/apt/sources.list.d/SONM_core.list
 validate_master
 install_dependency
 install_docker
