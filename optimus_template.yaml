@@ -15,7 +15,7 @@ node:
   # Account settings.
   ethereum: *ethereum
   # Node trusted endpoint.
-  endpoint: {{ADMIN_ADDRESS}}@127.0.0.1:15030"
+  endpoint: {{ADMIN_ADDRESS}}@127.0.0.1:15030
 
 benchmarks:
   # URL to download benchmark list, use "file://" schema to load file from a filesystem.
