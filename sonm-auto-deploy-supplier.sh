@@ -93,7 +93,7 @@ modify_config() {
 }
 
 resolve_gpu() {
-    if [[ $(lsmod | grep amd) ]]; then
+    if [[ $(lsmod | grep amdgpu) ]]; then
         GPU_TYPE="radeon: {}"
         GPU_SETTINGS="gpus:"
         echo detected RADEON GPU
