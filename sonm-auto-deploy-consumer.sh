@@ -7,10 +7,16 @@ set -o errexit
 trap cleanup EXIT
 
 download_url='https://packagecloud.io/install/repositories/SONM/core/script.deb.sh'
+github_url='https://raw.githubusercontent.com/sonm-io/autodeploy'
 node_config="node-default.yaml"
 cli_config="cli.yaml"
-if [ $SUDO_USER ]; then actual_user=$SUDO_USER; else actual_user=`whoami`; fi
-actual_user_home=$(eval echo ~$actual_user)
+if [ ${SUDO_USER} ]; then actual_user=${SUDO_USER}; else actual_user=$(whoami); fi
+actual_user_home=$(eval echo ~${actual_user})
+echo Installing SONM packages
+rm  -f /etc/apt/sources.list.d/SONM_core-dev.list
+branch='master'
+download_url='https://packagecloud.io/install/repositories/SONM/core/script.deb.sh'
+
 
 cleanup() {
     rm -f *_template.yaml
@@ -23,14 +29,14 @@ install_dependency() {
 }
 
 download_artifacts() {
-    curl -s $download_url | bash
-    apt-get install -y sonm-cli sonm-node
+    curl -s ${download_url} | bash
+    apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y sonm-cli sonm-node sonm-worker sonm-optimus
 }
 
 download_templates() {
-    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/master/node_template.yaml -O node_template.yaml
-    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/master/cli_template.yaml -O cli_template.yaml
-    wget -q https://raw.githubusercontent.com/sonm-io/autodeploy/master/variables.txt -O variables.txt
+    wget -q ${github_url}/${branch}/node_template.yaml -O node_template.yaml
+    wget -q ${github_url}/${branch}/cli_template.yaml -O cli_template.yaml
+    wget -q ${github_url}/${branch}/variables.txt -O variables.txt
 }
 
 load_variables() {
@@ -70,23 +76,23 @@ get_password() {
 set_up_cli() {
     echo setting up cli...
     get_password
-    modify_config "cli_template.yaml" $cli_config
-    mkdir -p $KEYSTORE
-    mkdir -p $actual_user_home/.sonm/
-    mv $cli_config $actual_user_home/.sonm/$cli_config
-    chown -R $actual_user:$actual_user $KEYSTORE
-    chown -R $actual_user:$actual_user $actual_user_home/.sonm
-    su - $actual_user -c "sonmcli login"
+    modify_config "cli_template.yaml" ${cli_config}
+    mkdir -p ${KEYSTORE}
+    mkdir -p ${actual_user_home}/.sonm/
+    mv ${cli_config} ${actual_user_home}/.sonm/${cli_config}
+    chown -R ${actual_user}:${actual_user} ${KEYSTORE}
+    chown -R ${actual_user}:${actual_user} ${actual_user_home}/.sonm
+    su - ${actual_user} -c "sonmcli login"
     sleep 1
-    ADMIN_ADDRESS=$(su - $actual_user -c "sonmcli login | grep 'Default key:'| cut -c14-")
-    chmod -R 755 $KEYSTORE/*
+    ADMIN_ADDRESS=$(su - ${actual_user} -c "sonmcli login | grep 'Default key:' | cut -c14-56" | tr -d '\r')
+    chmod -R 755 ${KEYSTORE}/*
     get_password
 }
 
 set_up_node() {
     echo setting up node...
-    modify_config "node_template.yaml" $node_config
-    mv $node_config /etc/sonm/$node_config
+    modify_config "node_template.yaml" ${node_config}
+    mv ${node_config} /etc/sonm/${node_config}
 }
 
 install_dependency
