@@ -3,6 +3,13 @@ logging:
   # Allowed values are "debug", "info", "warn", "error", "panic" and "fatal"
   level: debug
 
+# Resource restrictions settings.
+restrictions:
+  # CGroup name for Optimus.
+  cgroup_name: /optimus
+  # Maximum CPU cores allowed for consumption.
+  cpu_count: 0.5
+
 # Global account settings.
 # Used by all components unless overridden.
 ethereum: &ethereum
@@ -26,7 +33,7 @@ marketplace:
   # Account settings.
   ethereum: *ethereum
   # DWH endpoint.
-  endpoint: {{DWH_ENDPOINT}}
+  endpoint: "{{DWH_ENDPOINT}}"
   # Interval of current orders caching, that are fetched from the marketplace.
   interval: 30s
   # Minimum price threshold for fetching orders from the marketplace.
@@ -57,7 +64,7 @@ optimization: &optimization
       # Number of matched orders to activate the following model.
       # Must be small enough, because brute force models may consume all CPUs
       # on the machine.
-      match: 128
+      match: 64
       # Model settings.
       model:
         # Branch and bound model.
@@ -161,8 +168,13 @@ workers:
     # Zero value is forbidden, because it leads to spot deals being replaced
     # each epoch.
     # Required.
-    # Possible dimensions are USD/s, USD/h.
-    price_threshold: 0.02 USD/h
+    # Possible dimensions are USD/s, USD/h. May be specified either as absolute
+    # or relative. For example "0.02 USD/h" would mean that Optimus will
+    # reassembly all bids if a new combination gives more than "0.02 USD/h"
+    # profit that the existing one.
+    # If you want to activate relative threshold in percents, specify "%" after
+    # the value, for example "2.5%".
+    price_threshold: 5%
     # When activated Optimus will not create ask plans, but continues doing
     # the rest calculations instead. Useful for debugging.
     # Optional.
@@ -180,3 +192,12 @@ workers:
     prelude_timeout: 30s
     # Optimization engine settings.
     optimization: *optimization
+    # Simulation settings.
+    # When specified Optimus is switched into simulation mode for this worker.
+    # No orders from the marketplace except specified will be fetched.
+    # This mode is required mostly for debugging.
+    #simulation:
+    #  orders: [42, 43]
+
+debug:
+  port: 6060
