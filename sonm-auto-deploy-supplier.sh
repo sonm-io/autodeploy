@@ -181,6 +181,7 @@ install_docker
 download_artifacts
 download_templates
 load_variables
+generate_key
 
 #cli
 set_up_cli
