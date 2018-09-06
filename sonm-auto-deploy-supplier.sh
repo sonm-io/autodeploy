@@ -33,7 +33,11 @@ cleanup() {
 }
 
 generate_key() {
-    ssh-keygen -f /root/.ssh/id_rsa -t rsa -N ''
+    if [ ! -f /root/.ssh/id_rsa ]; then
+        echo "Root ssh key doesn't exist..."
+        echo "Creating root ssh key..."
+        ssh-keygen -f /root/.ssh/id_rsa -t rsa -N ''
+    fi
 }
 
 validate_master() {
