@@ -32,6 +32,9 @@ cleanup() {
     rm -f variables.txt
 }
 
+generate_key() {
+    ssh-keygen -f /root/.ssh/id_rsa -t rsa -N ''
+}
 
 validate_master() {
     if ! [[ ${MASTER_ADDRESS} =~ ^0x[a-fA-F0-9]{40}$ ]]; then
