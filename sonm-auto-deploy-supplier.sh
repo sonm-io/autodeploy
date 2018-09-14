@@ -54,6 +54,7 @@ install_docker() {
 }
 
 install_dependency() {
+    add-apt-repository universe
     apt-get update
     apt-get install -y jq curl wget
     resolve_gpu
