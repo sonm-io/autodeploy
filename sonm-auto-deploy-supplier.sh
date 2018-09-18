@@ -138,7 +138,7 @@ resolve_worker_key() {
 get_password() {
     if [ -f "$actual_user_home/.sonm/$cli_config" ]
     then
-        PASSWORD=$(cat $actual_user_home/.sonm/$cli_config | grep pass_phrase | cut -c16- | sed -e 's/"//g')
+        PASSWORD=$(cat $actual_user_home/.sonm/$cli_config | grep pass_phrase | cut -c16-)
     fi
 }
 

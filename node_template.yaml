@@ -35,7 +35,7 @@ matcher:
 
 benchmarks:
   # URL to download benchmark list, use `file://` schema to load file from a filesystem.
-  url: "https://raw.githubusercontent.com/sonm-io/benchmarks-list/master/list.json"
+  url: "{{BENCHMARKS_LIST}}"
 
 # Logging settings.
 log:
@@ -48,7 +48,7 @@ ethereum: &ethereum
   # path to keystore
   key_store: "{{KEYSTORE}}"
   # passphrase for keystore
-  pass_phrase: "{{PASSWORD}}"
+  pass_phrase: {{PASSWORD}}
 
 metrics_listen_addr: "127.0.0.1:14003"
 

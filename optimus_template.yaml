@@ -16,7 +16,7 @@ ethereum: &ethereum
   # Path to the keystore.
   key_store: "{{KEYSTORE}}"
   # passphrase for keystore
-  pass_phrase: "{{PASSWORD}}"
+  pass_phrase: {{PASSWORD}}
 # Node settings.
 node:
   # Account settings.
@@ -26,7 +26,7 @@ node:
 
 benchmarks:
   # URL to download benchmark list, use "file://" schema to load file from a filesystem.
-  url: "https://raw.githubusercontent.com/sonm-io/benchmarks-list/master/list.json"
+  url: "{{BENCHMARKS_LIST}}"
 
 # Marketplace polling settings.
 marketplace:

@@ -5,3 +5,4 @@ KEYSTORE="/etc/sonm/sonm-keystore"
 WORKER_STORE_PATH=/var/lib/sonm/worker.boltdb
 WORKER_KEY_PATH=/var/lib/sonm/worker_keystore
 NODE_KEY=$KEYSTORE/state/data
+BENCHMARKS_LIST=https://raw.githubusercontent.com/sonm-io/benchmarks-list/master/list.json
