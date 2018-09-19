@@ -14,6 +14,7 @@ admin: {{ADMIN_ADDRESS}}
 # Private key is also exported in /var/lib/sonm/worker_keystore with "sonm" passphrase
 # This option is required.
 master: {{MASTER_ADDRESS}}
+
 # NAT punching settings.
 npp: &npp
   rendezvous:
@@ -61,7 +62,10 @@ benchmarks:
 whitelist:
   # URL to downloads list of allowed containers.
   url: "https://raw.githubusercontent.com/sonm-io/allowed-list/master/general_whitelist.json"
+  # Deprecated: use PrivilegedIdentityLevel instead
   enabled: true
+  # allow users of this level or higher to skip whitelist
+  privileged_identity_level: identified
 
 matcher:
   poll_delay: 10s
@@ -97,9 +101,8 @@ metrics_listen_addr: "127.0.0.1:14001"
 # It works through NPP, i.e. can be used even if a worker is located behind NAT.
 ssh:
   # Endpoint where SSH server will be exposed.
-  endpoint: localhost:2222
-  # Private key path, that is used only for SSH DH.
-  private_key_path: /root/.ssh/id_rsa
+  # Optional.
+  endpoint: localhost:0
   # NPP settings.
   # It is extremely likely that it should be borrowed from the global NPP
   # settings.
