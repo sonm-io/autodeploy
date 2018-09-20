@@ -16,7 +16,7 @@ ethereum: &ethereum
   # Path to the keystore.
   key_store: "{{KEYSTORE}}"
   # Passphrase for the keystore.
-  pass_phrase: "{{PASSWORD}}"
+  pass_phrase: {{PASSWORD}}
 # Node settings.
 node:
   # Account settings.
