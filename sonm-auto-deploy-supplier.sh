@@ -111,14 +111,14 @@ modify_config() {
 
     replaces=""
     vars=$(echo $vars | sort | uniq)
-    for to_install in $vars; do
-        value=$(var_value $to_install | sed -e "s;\&;\\\&;g" -e "s;\ ;\\\ ;g")
+    for var in ${vars}; do
+        value=$(var_value ${var} | sed -e "s;\&;\\\&;g" -e "s;\ ;\\\ ;g")
         value=$(echo "$value" | sed 's/\//\\\//g');
-        replaces="-e 's|{{$to_install}}|${value}|g' $replaces"
+        replaces="-e \"s|{{$var}}|${value}|g\" $replaces"
     done
 
-    escaped_template_path=$(echo $template | sed 's/ /\\ /g')
-    eval sed $replaces "$escaped_template_path" > $2
+    escaped_template_path=$(echo ${template} | sed 's/ /\\ /g')
+    eval sed ${replaces} "${escaped_template_path}" > $2
 }
 
 resolve_gpu() {
@@ -159,7 +159,7 @@ resolve_worker_key() {
 get_password() {
     if [ -f "$actual_user_home/.sonm/$cli_config" ]
     then
-        PASSWORD=$(cat $actual_user_home/.sonm/$cli_config | grep pass_phrase | cut -c16- | sed -e 's/"//g')
+        PASSWORD=$(cat $actual_user_home/.sonm/$cli_config | grep pass_phrase | cut -c16- | sed "s/\'/\\\'/g")
     fi
 }
 

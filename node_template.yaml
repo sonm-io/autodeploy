@@ -48,7 +48,7 @@ ethereum: &ethereum
   # path to keystore
   key_store: "{{KEYSTORE}}"
   # passphrase for keystore
-  pass_phrase: "{{PASSWORD}}"
+  pass_phrase: {{PASSWORD}}
 
 metrics_listen_addr: "127.0.0.1:14003"
 
