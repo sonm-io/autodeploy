@@ -53,15 +53,36 @@ install_docker() {
     fi
 }
 
-install_dependency() {
+install_dependencies() {
+    apt-get install -y software-properties-common gnupg apt-transport-https
     add-apt-repository universe
     apt-get update
-    apt-get install -y jq curl wget
-    resolve_gpu
+
+    declare -a deps=("jq" "curl" "wget")
+    for dep in "${deps[@]}"
+    do
+        if ! [ $(which $dep) ]; then
+            to_install="$to_install $dep"
+        fi
+    done
+    if [ -n "$to_install" ]; then
+        apt-get install -y ${to_install}
+    fi
 }
 
-download_artifacts() {
-    curl -s ${download_url} | bash
+install_sonm() {
+    gpg_key_url="https://packagecloud.io/SONM/core/gpgkey"
+    apt_config_url="https://packagecloud.io/install/repositories/SONM/core/config_file.list?os=ubuntu&dist=xenial&source=script"
+    apt_source_path="/etc/apt/sources.list.d/SONM_core.list"
+    curl -sSf "${apt_config_url}" > ${apt_source_path}
+    echo -n "Importing packagecloud gpg key... "
+    # import the gpg key
+    curl -L "${gpg_key_url}" 2> /dev/null | apt-key add - &>/dev/null
+    echo "done."
+
+    echo -n "Running apt-get update... "
+    apt-get update &> /dev/null
+    echo "done."
     apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y sonm-cli sonm-node sonm-worker sonm-optimus
 }
 
@@ -90,10 +111,10 @@ modify_config() {
 
     replaces=""
     vars=$(echo $vars | sort | uniq)
-    for var in $vars; do
-        value=$(var_value $var | sed -e "s;\&;\\\&;g" -e "s;\ ;\\\ ;g")
+    for to_install in $vars; do
+        value=$(var_value $to_install | sed -e "s;\&;\\\&;g" -e "s;\ ;\\\ ;g")
         value=$(echo "$value" | sed 's/\//\\\//g');
-        replaces="-e 's|{{$var}}|${value}|g' $replaces"
+        replaces="-e 's|{{$to_install}}|${value}|g' $replaces"
     done
 
     escaped_template_path=$(echo $template | sed 's/ /\\ /g')
@@ -177,9 +198,10 @@ set_up_optimus() {
 }
 
 validate_master
-install_dependency
+install_dependencies
 install_docker
-download_artifacts
+resolve_gpu
+install_sonm
 download_templates
 load_variables
 generate_key
