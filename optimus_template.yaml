@@ -198,6 +198,3 @@ workers:
     # This mode is required mostly for debugging.
     #simulation:
     #  orders: [42, 43]
-
-debug:
-  port: 6060
