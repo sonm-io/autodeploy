@@ -103,16 +103,16 @@ modify_config() {
 
     vars=$(grep -oE '\{\{[A-Za-z0-9_]+\}\}' "${template}" | sort | uniq | sed -e 's/^{{//' -e 's/}}$//')
 
-    replaces="{"
+    replaces=""
     vars=$(echo $vars | sort | uniq)
     for var in ${vars}; do
         value=$(var_value ${var} | sed -e "s;\&;\\\&;g" -e "s;\ ;\\\ ;g")
         value=$(echo "$value" | sed 's/\//\\\//g');
-        replaces=$replaces'gsub("\{\{'$var'\}\}","'${value}'");'
+        replaces="-e \"s|{{$var}}|${value}|g\" $replaces"
     done
-    replaces=$replaces"print}"
+
     escaped_template_path=$(echo ${template} | sed 's/ /\\ /g')
-    eval awk '${replaces}' "${escaped_template_path}" >$2
+    eval sed ${replaces} "${escaped_template_path}" > $2
 }
 
 resolve_gpu() {
