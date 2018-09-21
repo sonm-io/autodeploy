@@ -47,9 +47,10 @@ install_docker() {
 }
 
 install_dependencies() {
-    apt-get install -y software-properties-common gnupg apt-transport-https gawk
+    apt-get install -y software-properties-common
     add-apt-repository universe
     apt-get update
+    apt-get install -y gnupg apt-transport-https gawk
 
     declare -a deps=("jq" "curl" "wget")
     for dep in "${deps[@]}"
