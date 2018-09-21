@@ -103,16 +103,16 @@ modify_config() {
 
     vars=$(grep -oE '\{\{[A-Za-z0-9_]+\}\}' "${template}" | sort | uniq | sed -e 's/^{{//' -e 's/}}$//')
 
-    replaces=""
+    replaces="{"
     vars=$(echo $vars | sort | uniq)
     for var in ${vars}; do
         value=$(var_value ${var} | sed -e "s;\&;\\\&;g" -e "s;\ ;\\\ ;g")
         value=$(echo "$value" | sed 's/\//\\\//g');
-        replaces="-e \"s|{{$var}}|${value}|g\" $replaces"
+        replaces=$replaces'gsub("\{\{'$var'\}\}","'${value}'");'
     done
-
+    replaces=$replaces"print}"
     escaped_template_path=$(echo ${template} | sed 's/ /\\ /g')
-    eval sed ${replaces} "${escaped_template_path}" > $2
+    eval awk '${replaces}' "${escaped_template_path}" >$2
 }
 
 resolve_gpu() {
@@ -153,7 +153,7 @@ resolve_worker_key() {
 get_password() {
     if [ -f "$actual_user_home/.sonm/$cli_config" ]
     then
-        PASSWORD=$(cat $actual_user_home/.sonm/$cli_config | grep pass_phrase | cut -c16- | awk '{gsub("\x22","\x5C\x5C\x5C\x22");gsub("\x27","\x5C\x5C\x5C\x27"); print}')
+        PASSWORD=$(cat $actual_user_home/.sonm/$cli_config | grep pass_phrase | cut -c16- | awk '{gsub("\x22","\x5C\x22");gsub("\x27","\x5C\x27"); print}')
     fi
 }
 
