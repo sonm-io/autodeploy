@@ -32,13 +32,6 @@ cleanup() {
     rm -f variables.txt
 }
 
-generate_key() {
-    if [ ! -f /root/.ssh/id_rsa ]; then
-        echo "Root ssh key doesn't exist..."
-        echo "Creating root ssh key..."
-        ssh-keygen -f /root/.ssh/id_rsa -t rsa -N ''
-    fi
-}
 
 validate_master() {
     if ! [[ ${MASTER_ADDRESS} =~ ^0x[a-fA-F0-9]{40}$ ]]; then
@@ -204,7 +197,6 @@ resolve_gpu
 install_sonm
 download_templates
 load_variables
-generate_key
 
 #cli
 set_up_cli
