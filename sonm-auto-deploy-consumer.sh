@@ -56,20 +56,20 @@ modify_config() {
 
     replaces=""
     vars=$(echo $vars | sort | uniq)
-    for var in $vars; do
-        value=$(var_value $var | sed -e "s;\&;\\\&;g" -e "s;\ ;\\\ ;g")
+    for var in ${vars}; do
+        value=$(var_value ${var} | sed -e "s;\&;\\\&;g" -e "s;\ ;\\\ ;g")
         value=$(echo "$value" | sed 's/\//\\\//g');
-        replaces="-e 's|{{$var}}|${value}|g' $replaces"
+        replaces="-e \"s|{{$var}}|${value}|g\" $replaces"
     done
 
-    escaped_template_path=$(echo $template | sed 's/ /\\ /g')
-    eval sed $replaces "$escaped_template_path" > $2
+    escaped_template_path=$(echo ${template} | sed 's/ /\\ /g')
+    eval sed ${replaces} "${escaped_template_path}" > $2
 }
 
 get_password() {
     if [ -f "$actual_user_home/.sonm/$cli_config" ]
     then
-        PASSWORD=$(cat $actual_user_home/.sonm/$cli_config | grep pass_phrase | cut -c16- | sed -e 's/"//g')
+        PASSWORD=$(cat $actual_user_home/.sonm/$cli_config | grep pass_phrase | cut -c16- | awk '{gsub("\x22","\x5C\x5C\x5C\x22");gsub("\x27","\x5C\x5C\x5C\x27"); print $0}')
     fi
 }
 

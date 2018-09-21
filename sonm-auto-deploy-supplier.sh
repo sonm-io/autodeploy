@@ -159,7 +159,7 @@ resolve_worker_key() {
 get_password() {
     if [ -f "$actual_user_home/.sonm/$cli_config" ]
     then
-        PASSWORD=$(cat $actual_user_home/.sonm/$cli_config | grep pass_phrase | cut -c16- | sed "s/\'/\\\'/g"| sed 's/\"/\\\"/g')
+        PASSWORD=$(cat $actual_user_home/.sonm/$cli_config | grep pass_phrase | cut -c16- | awk '{gsub("\x22","\x5C\x5C\x5C\x22");gsub("\x27","\x5C\x5C\x5C\x27"); print $0}')
     fi
 }
 
