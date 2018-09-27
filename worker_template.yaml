@@ -50,7 +50,7 @@ npp: &npp
 logging:
   # The desired logging level.
   # Allowed values are "debug", "info", "warn", "error", "panic" and "fatal"
-  level: debug
+  level: warn
 
 store:
   path: "{{WORKER_STORE_PATH}}"

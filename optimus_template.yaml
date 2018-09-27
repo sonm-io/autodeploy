@@ -1,7 +1,7 @@
 logging:
   # The desired logging level.
   # Allowed values are "debug", "info", "warn", "error", "panic" and "fatal"
-  level: debug
+  level: warn
 
 # Resource restrictions settings.
 restrictions:
