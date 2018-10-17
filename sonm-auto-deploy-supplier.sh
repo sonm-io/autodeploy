@@ -79,20 +79,24 @@ install_sonm() {
     apt-get update &> /dev/null
     echo "done."
     apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y sonm-cli sonm-node sonm-worker sonm-optimus
+    echo "Sonm packages installed"
 }
 
 download_templates() {
+    echo "Downloading templates..."
     wget -q ${github_url}/${branch}/worker_template.yaml -O worker_template.yaml
     wget -q ${github_url}/${branch}/node_template.yaml -O node_template.yaml
     wget -q ${github_url}/${branch}/cli_template.yaml -O cli_template.yaml
     wget -q ${github_url}/${branch}/optimus_template.yaml -O optimus_template.yaml
     wget -q ${github_url}/${branch}/variables.txt -O variables.txt
+    echo "Templates downloaded"
 }
 
 load_variables() {
-    echo loading variables...
+    echo "Loading variables..."
     source ./variables.txt
     export $(cut -d= -f1 variables.txt)
+    echo "Variables loaded"
 }
 
 var_value() {
