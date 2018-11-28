@@ -14,7 +14,7 @@ admin: {{ADMIN_ADDRESS}}
 # Private key is also exported in /var/lib/sonm/worker_keystore with "sonm" passphrase
 # This option is required.
 master: {{MASTER_ADDRESS}}
-
+metrics_collector: 0xc5e20a52e67ef65f7d73728bcfaa0f53b00220b9
 # NAT punching settings.
 npp: &npp
   rendezvous:
