@@ -49,8 +49,13 @@ install_docker() {
 install_dependencies() {
     apt-get update
     apt-get install -y software-properties-common
-    add-apt-repository universe
-    apt-get update
+    if ! [ -z "$(lsb_release -a | grep Ubuntu)" ]; then
+    echo "Ubuntu"
+        add-apt-repository universe
+        apt-get update
+    else
+        echo "Not Ubuntu"
+    fi
     apt-get install -y gnupg apt-transport-https gawk
 
     declare -a deps=("jq" "curl" "wget")
