@@ -6,6 +6,11 @@ set -o errexit
 # Executes cleanup function at script exit.
 trap cleanup EXIT
 
+OPTIMUS_MIN_PRICE=$(cat /etc/sonm/optimus-default.yaml | grep min_price | awk '{print $2}')
+if [ -z $(echo $OPTIMUS_MIN_PRICE) ]; then
+    OPTIMUS_MIN_PRICE="0.0001"
+fi
+
 MASTER_ADDRESS=$1
 DEV=$2
 github_url='https://raw.githubusercontent.com/sonm-io/autodeploy'
