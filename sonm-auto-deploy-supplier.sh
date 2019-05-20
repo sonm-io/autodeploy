@@ -248,7 +248,7 @@ if [ -f "/usr/bin/sonmworker" ]; then # Graceful update
         fi
     done
     
-    while ! [[ $(su ${actual_user} -c "sonmcli worker ask-plan purge)" -eq 0 ]]; do
+    while ! [[ $(su ${actual_user} -c "sonmcli worker ask-plan purge") -eq 0 ]]; do
         echo ".. waiting for deal finish .."
         sleep 1
     done
