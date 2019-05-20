@@ -238,9 +238,8 @@ fi
 
 if [ -f "/usr/bin/sonmworker" ]; then # Graceful update
     MASTER_ADDRESS=$(cat /etc/sonm/worker-default.yaml | grep master | grep 0x | awk '{print $2}')
-    CLI_CMD="sonmcli --config=$HOME/.sonm/cli.yaml"
     echo "Looks like Sonm is already installed, checking deals.."
-    for i in $($CLI_CMD worker ask-plan list | grep deal -A1 | grep duration | awk '{print $2}' | cut -d "h" -f 1); do 
+    for i in $(su ${actual_user} -c "sonmcli worker ask-plan list | grep deal -A1 | grep duration | awk '{print $2}' | cut -d "h" -f 1"); do 
         if [[ $i -gt 0 ]]; then 
             echo "Forward deal found, you cannot perform update at the moment" 
             exit 1
@@ -249,7 +248,7 @@ if [ -f "/usr/bin/sonmworker" ]; then # Graceful update
         fi
     done
     
-    while ! [[ $($CLI_CMD worker ask-plan purge) -eq 0 ]]; do
+    while ! [[ $(su ${actual_user} -c "sonmcli worker ask-plan purge)" -eq 0 ]]; do
         echo ".. waiting for deal finish .."
         sleep 1
     done
