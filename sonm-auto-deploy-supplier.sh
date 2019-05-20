@@ -6,10 +6,7 @@ set -o errexit
 # Executes cleanup function at script exit.
 trap cleanup EXIT
 
-OPTIMUS_MIN_PRICE=$(cat /etc/sonm/optimus-default.yaml | grep min_price | awk '{print $2}')
-if [ -z $(echo $OPTIMUS_MIN_PRICE) ]; then
-    OPTIMUS_MIN_PRICE="0.0001"
-fi
+OPTIMUS_MIN_PRICE="0.01"
 
 MASTER_ADDRESS=$1
 DEV=$2
@@ -75,7 +72,7 @@ install_dependencies() {
     fi
 }
 
-install_sonm() {
+install_sonm_packages() {
     gpg_key_url="https://packagecloud.io/SONM/core/gpgkey"
     apt_config_url="https://packagecloud.io/install/repositories/SONM/core/config_file.list?os=ubuntu&dist=xenial&source=script"
     apt_source_path="/etc/apt/sources.list.d/SONM_core.list"
@@ -206,29 +203,59 @@ set_up_optimus() {
     mv ${optimus_config} /etc/sonm/${optimus_config}
 }
 
-validate_master
-install_dependencies
-install_docker
-resolve_gpu
-install_sonm
-download_templates
-load_variables
+set_update_script() {
+    wget -q ${github_url}/${branch}/sonm-auto-deploy-supplier.sh -O /usr/bin/sonm-update
+    chmod +x /usr/bin/sonm-update
+}
 
-#cli
-set_up_cli
+install_sonm() {
+    validate_master
+    resolve_gpu
+    install_sonm_packages
+    download_templates
+    load_variables
 
-#node
-set_up_node
-#worker
-set_up_worker
+    set_up_cli
+    set_up_node
+    set_up_worker
 
+    echo starting node, worker and optimus
+    systemctl restart sonm-worker sonm-node
+    #confirm worker
+    resolve_worker_key
+    echo "worker address ${WORKER_ADDRESS}"
+    echo "Switching to worker"
+    su ${actual_user} -c "sonmcli worker switch ${WORKER_ADDRESS}@127.0.0.1:15010"
+    set_up_optimus
+    systemctl restart sonm-optimus
+}
 
-echo starting node, worker and optimus
-systemctl restart sonm-worker sonm-node
-#confirm worker
-resolve_worker_key
-echo "worker address ${WORKER_ADDRESS}"
-echo "Switching to worker"
-su ${actual_user} -c "sonmcli worker switch ${WORKER_ADDRESS}@127.0.0.1:15010"
-set_up_optimus
-systemctl restart sonm-optimus
+if [[ "$(id -u)" != "0" ]]; then
+   echo "This script must be run as superuser"
+   exit 1
+fi
+
+if [ -f "/usr/bin/sonmworker" ]; then # Graceful update
+    MASTER_ADDRESS=$(cat /etc/sonm/worker-default.yaml | grep master | grep 0x | awk '{print $2}')
+    CLI_CMD="sonmcli --config=$HOME/.sonm/cli.yaml"
+    echo "Looks like Sonm is already installed, checking deals.."
+    for i in $($CLI_CMD worker ask-plan list | grep deal -A1 | grep duration | awk '{print $2}' | cut -d "h" -f 1); do 
+        if [[ $i -gt 0 ]]; then 
+            echo "Forward deal found, you cannot perform update at the moment" 
+            exit 1
+        else 
+            echo "Spot deals found. Closing deals.."
+        fi
+    done
+    
+    while ! [[ $($CLI_CMD worker ask-plan purge) -eq 0 ]]; do
+        echo ".. waiting for deal finish .."
+        sleep 1
+    done
+    systemctl stop sonm-worker
+    install_sonm
+else # Install sonm for supplier
+    install_dependencies
+    install_docker
+    install_sonm
+fi
