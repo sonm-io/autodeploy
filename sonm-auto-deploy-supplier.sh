@@ -228,6 +228,7 @@ install_sonm() {
     su ${actual_user} -c "sonmcli worker switch ${WORKER_ADDRESS}@127.0.0.1:15010"
     set_up_optimus
     systemctl restart sonm-optimus
+    set_update_script
 }
 
 if [[ "$(id -u)" != "0" ]]; then
