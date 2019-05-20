@@ -238,7 +238,7 @@ fi
 
 if [ -f "/usr/bin/sonmworker" ]; then # Graceful update
     MASTER_ADDRESS=$(cat /etc/sonm/worker-default.yaml | grep master | grep 0x | awk '{print $2}')
-    echo "Looks like Sonm is already installed, checking deals.."
+    echo "Looks like Sonm is already installed (master address is $MASTER_ADDRESS), checking deals.."
     for i in $(su ${actual_user} -c "sonmcli worker ask-plan list | grep deal -A1 | grep duration | awk '{print $2}' | cut -d "h" -f 1"); do 
         if [[ $i -gt 0 ]]; then 
             echo "Forward deal found, you cannot perform update at the moment" 
