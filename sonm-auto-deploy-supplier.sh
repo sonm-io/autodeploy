@@ -240,7 +240,7 @@ fi
 
 if [ -f "/usr/bin/sonmworker" ]; then # Graceful update
     MASTER_ADDRESS=$(cat /etc/sonm/worker-default.yaml | grep master | grep 0x | awk '{print $2}')
-    echo "Looks like Sonm is already installed, checking deals.."
+    echo "Looks like Sonm is already installed (master address is $MASTER_ADDRESS), checking deals.."
     if ! [[ -z $(pgrep sonmworker) ]]; then
         if ! [[ $(su ${actual_user} -c "sonmcli worker status --json |jq '.uptime'") -eq 0 ]]; then
             for i in $(su ${actual_user} -c "sonmcli worker ask-plan list --json | jq '.askPlans[].duration.nanoseconds'"); do
@@ -263,7 +263,7 @@ if [ -f "/usr/bin/sonmworker" ]; then # Graceful update
     
     systemctl stop sonm-worker
     install_sonm
-    
+
 else # Install sonm for supplier
     install_dependencies
     install_docker
