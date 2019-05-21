@@ -76,6 +76,9 @@ install_sonm_packages() {
     apt-get update &> /dev/null
     echo "done."
     apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y sonm-cli sonm-node sonm-worker sonm-optimus
+    if ! [[ -z $(echo $SONM_VERSION) ]]; then
+        apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y sonm-mon
+    fi
     echo "Sonm packages installed"
 }
 
