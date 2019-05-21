@@ -15,17 +15,7 @@ worker_config="worker-default.yaml"
 node_config="node-default.yaml"
 cli_config="cli.yaml"
 optimus_config="optimus-default.yaml"
-if [ ${DEV} ]; then
-    echo Installing SONM dev packages
-    rm  -f /etc/apt/sources.list.d/SONM_core.list
-    branch='dev'
-    download_url='https://packagecloud.io/install/repositories/SONM/core-dev/script.deb.sh'
-else
-    echo Installing SONM packages
-    rm  -f /etc/apt/sources.list.d/SONM_core-dev.list
-    branch='master'
-    download_url='https://packagecloud.io/install/repositories/SONM/core/script.deb.sh'
-fi
+
 if [ ${SUDO_USER} ]; then actual_user=${SUDO_USER}; else actual_user=$(whoami); fi
 actual_user_home=$(eval echo ~${actual_user})
 
@@ -209,6 +199,18 @@ set_update_script() {
 }
 
 install_sonm() {
+    if [ ${DEV} ]; then
+        echo Installing SONM dev packages
+        rm  -f /etc/apt/sources.list.d/SONM_core.list
+        branch='dev'
+        download_url='https://packagecloud.io/install/repositories/SONM/core-dev/script.deb.sh'
+    else
+        echo Installing SONM packages
+        rm  -f /etc/apt/sources.list.d/SONM_core-dev.list
+        branch='master'
+        download_url='https://packagecloud.io/install/repositories/SONM/core/script.deb.sh'
+    fi
+
     validate_master
     resolve_gpu
     install_sonm_packages
@@ -238,22 +240,30 @@ fi
 
 if [ -f "/usr/bin/sonmworker" ]; then # Graceful update
     MASTER_ADDRESS=$(cat /etc/sonm/worker-default.yaml | grep master | grep 0x | awk '{print $2}')
-    echo "Looks like Sonm is already installed (master address is $MASTER_ADDRESS), checking deals.."
-    for i in $(su ${actual_user} -c "sonmcli worker ask-plan list | grep deal -A1 | grep duration | awk '{print $2}' | cut -d "h" -f 1"); do 
-        if [[ $i -gt 0 ]]; then 
-            echo "Forward deal found, you cannot perform update at the moment" 
-            exit 1
-        else 
-            echo "Spot deals found. Closing deals.."
+    echo "Looks like Sonm is already installed, checking deals.."
+    if ! [[ -z $(pgrep sonmworker) ]]; then
+        if ! [[ $(su ${actual_user} -c "sonmcli worker status --json |jq '.uptime'") -eq 0 ]]; then
+            for i in $(su ${actual_user} -c "sonmcli worker ask-plan list --json | jq '.askPlans[].duration.nanoseconds'"); do
+                if [[ $i -gt 0 ]]; then
+                    echo "WARNING: Forward deal found, you CANNOT perform update at the moment"
+                    exit 1
+                fi
+            done
+            echo "Closing spot deals.."
+            while true; do
+                echo ".. waiting for deal finish .."
+                su ${actual_user} -c "sonmcli worker ask-plan purge --timeout=2m"
+                if [[ $? -eq 0 ]]; then break; fi
+            sleep 1
+            done
         fi
-    done
+    else
+        echo "Sonm-worker is not running. Installing SONM Platform updates"
+    fi
     
-    while ! [[ $(su ${actual_user} -c "sonmcli worker ask-plan purge") -eq 0 ]]; do
-        echo ".. waiting for deal finish .."
-        sleep 1
-    done
     systemctl stop sonm-worker
     install_sonm
+    
 else # Install sonm for supplier
     install_dependencies
     install_docker
