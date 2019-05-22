@@ -39,8 +39,7 @@ marketplace:
   # Minimum price threshold for fetching orders from the marketplace.
   # Used to prevent regression poisoning.
   # Optional.
-  # Default value is 0.0001 USD/h, which is nearly about 1 USD per year.
-  min_price: {{OPTIMUS_MIN_PRICE}} USD/h
+  min_price: 0.01 USD/h
 
 # Optimization engine settings.
 optimization: &optimization
@@ -156,7 +155,7 @@ workers:
     # Default value is 60s.
     epoch: 60s
     # How the bot should filter orders. Possible values are: "spot_only".
-    order_duration_threshold: 24h
+    order_duration_threshold: 72h
     # Orders that haven't been sold for this interval will be canceled.
     # Optional.
     # Default value is 5m.

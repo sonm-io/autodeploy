@@ -6,10 +6,7 @@ set -o errexit
 # Executes cleanup function at script exit.
 trap cleanup EXIT
 
-OPTIMUS_MIN_PRICE=$(cat /etc/sonm/optimus-default.yaml | grep min_price | awk '{print $2}')
-if [ -z $(echo $OPTIMUS_MIN_PRICE) ]; then
-    OPTIMUS_MIN_PRICE="0.0001"
-fi
+OPTIMUS_MIN_PRICE="0.01"
 
 MASTER_ADDRESS=$1
 DEV=$2
@@ -18,17 +15,7 @@ worker_config="worker-default.yaml"
 node_config="node-default.yaml"
 cli_config="cli.yaml"
 optimus_config="optimus-default.yaml"
-if [ ${DEV} ]; then
-    echo Installing SONM dev packages
-    rm  -f /etc/apt/sources.list.d/SONM_core.list
-    branch='dev'
-    download_url='https://packagecloud.io/install/repositories/SONM/core-dev/script.deb.sh'
-else
-    echo Installing SONM packages
-    rm  -f /etc/apt/sources.list.d/SONM_core-dev.list
-    branch='master'
-    download_url='https://packagecloud.io/install/repositories/SONM/core/script.deb.sh'
-fi
+
 if [ ${SUDO_USER} ]; then actual_user=${SUDO_USER}; else actual_user=$(whoami); fi
 actual_user_home=$(eval echo ~${actual_user})
 
@@ -75,7 +62,7 @@ install_dependencies() {
     fi
 }
 
-install_sonm() {
+install_sonm_packages() {
     gpg_key_url="https://packagecloud.io/SONM/core/gpgkey"
     apt_config_url="https://packagecloud.io/install/repositories/SONM/core/config_file.list?os=ubuntu&dist=xenial&source=script"
     apt_source_path="/etc/apt/sources.list.d/SONM_core.list"
@@ -89,6 +76,9 @@ install_sonm() {
     apt-get update &> /dev/null
     echo "done."
     apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y sonm-cli sonm-node sonm-worker sonm-optimus
+    if ! [[ -z $(echo $SONM_VERSION) ]]; then
+        apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y sonm-mon
+    fi
     echo "Sonm packages installed"
 }
 
@@ -206,29 +196,79 @@ set_up_optimus() {
     mv ${optimus_config} /etc/sonm/${optimus_config}
 }
 
-validate_master
-install_dependencies
-install_docker
-resolve_gpu
-install_sonm
-download_templates
-load_variables
+set_update_script() {
+    wget -q ${github_url}/${branch}/sonm-auto-deploy-supplier.sh -O /usr/bin/sonm-update
+    chmod +x /usr/bin/sonm-update
+}
 
-#cli
-set_up_cli
+install_sonm() {
+    if [ ${DEV} ]; then
+        echo Installing SONM dev packages
+        rm  -f /etc/apt/sources.list.d/SONM_core.list
+        branch='dev'
+        download_url='https://packagecloud.io/install/repositories/SONM/core-dev/script.deb.sh'
+    else
+        echo Installing SONM packages
+        rm  -f /etc/apt/sources.list.d/SONM_core-dev.list
+        branch='master'
+        download_url='https://packagecloud.io/install/repositories/SONM/core/script.deb.sh'
+    fi
 
-#node
-set_up_node
-#worker
-set_up_worker
+    validate_master
+    resolve_gpu
+    install_sonm_packages
+    download_templates
+    load_variables
 
+    set_up_cli
+    set_up_node
+    set_up_worker
 
-echo starting node, worker and optimus
-systemctl restart sonm-worker sonm-node
-#confirm worker
-resolve_worker_key
-echo "worker address ${WORKER_ADDRESS}"
-echo "Switching to worker"
-su ${actual_user} -c "sonmcli worker switch ${WORKER_ADDRESS}@127.0.0.1:15010"
-set_up_optimus
-systemctl restart sonm-optimus
+    echo starting node, worker and optimus
+    systemctl restart sonm-worker sonm-node
+    #confirm worker
+    resolve_worker_key
+    echo "worker address ${WORKER_ADDRESS}"
+    echo "Switching to worker"
+    su ${actual_user} -c "sonmcli worker switch ${WORKER_ADDRESS}@127.0.0.1:15010"
+    set_up_optimus
+    systemctl restart sonm-optimus
+    set_update_script
+}
+
+if [[ "$(id -u)" != "0" ]]; then
+   echo "This script must be run as superuser"
+   exit 1
+fi
+
+if [ -f "/usr/bin/sonmworker" ]; then # Graceful update
+    MASTER_ADDRESS=$(cat /etc/sonm/worker-default.yaml | grep master | grep 0x | awk '{print $2}')
+    echo "Looks like Sonm is already installed (master address is $MASTER_ADDRESS), checking deals.."
+    if ! [[ -z $(pgrep sonmworker) ]]; then
+        if ! [[ $(su ${actual_user} -c "sonmcli worker status --json |jq '.uptime'") -eq 0 ]]; then
+            for i in $(su ${actual_user} -c "sonmcli worker ask-plan list --json | jq '.askPlans[].duration.nanoseconds'"); do
+                if [[ $i -gt 0 ]]; then
+                    echo "WARNING: Forward deal found, you CANNOT perform update at the moment"
+                    exit 1
+                fi
+            done
+            echo "Closing spot deals.."
+            while true; do
+                echo ".. waiting for deal finish .."
+                su ${actual_user} -c "sonmcli worker ask-plan purge --timeout=2m"
+                if [[ $? -eq 0 ]]; then break; fi
+            sleep 1
+            done
+        fi
+    else
+        echo "Sonm-worker is not running. Installing SONM Platform updates"
+    fi
+    
+    systemctl stop sonm-worker
+    install_sonm
+
+else # Install sonm for supplier
+    install_dependencies
+    install_docker
+    install_sonm
+fi
