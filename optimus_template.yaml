@@ -204,4 +204,4 @@ workers:
     # The "entire_machine" value means that either the most profitable forward
     # order will consume the entire machine or the set of spot orders depending
     # on the total profitability.
-    plan_policy: precise
+    plan_policy: entire_machine
