@@ -1,3 +1,10 @@
-#!/usr/bin/env bash
+[Unit]
+Description=Generate XOrg config to enable fan control on Nvidia cards (launch before hivex.service)
+Before=hivex.service
 
-nvidia-xconfig --allow-empty-initial-configuration --cool-bits=4 --enable-all-gpus
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/sonm-xorg-config
+
+[Install]
+WantedBy=hivex.service
