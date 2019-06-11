@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+nvidia-xconfig --allow-empty-initial-configuration --cool-bits=4 --enable-all-gpus

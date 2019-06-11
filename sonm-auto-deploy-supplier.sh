@@ -201,6 +201,21 @@ set_update_script() {
     chmod +x /usr/bin/sonm-update
 }
 
+fix_hive() {
+    if [ -f "/hive/bin/hivex" ]; then
+        echo "Detected Hive OS, installing patch.."
+        wget -q ${github_url}/${branch}/hive/sonm-xorg-config.service -O /etc/systemd/system/sonm-xorg-config.service
+        wget -q ${github_url}/${branch}/hive/sonm-xorg-config -O /usr/bin/sonm-xorg-config
+        chmod +x /usr/bin/sonm-xorg-config
+
+        echo "Enabling service"
+        systemctl daemon-reload
+        systemctl enable sonm-xorg-config.service
+        systemctl restart sonm-xorg-config.service
+        systemctl restart hivex.service
+    fi
+}
+
 install_sonm() {
     if [ ${DEV} ]; then
         echo Installing SONM dev packages
@@ -234,6 +249,7 @@ install_sonm() {
     set_up_optimus
     systemctl restart sonm-optimus
     set_update_script
+    fix_hive
 }
 
 if [[ "$(id -u)" != "0" ]]; then
