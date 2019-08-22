@@ -12,6 +12,10 @@ check_miner() {
 	echo $(ps ax | grep miner | grep SCREEN)
 }
 
+hive_miner() {
+	echo $(/hive/bin/miner $1)
+}
+
 wait_deal() {
         while true; do
 		SONM_DEAL=$(check_deal)
@@ -20,7 +24,7 @@ wait_deal() {
 			sleep 10
 		else
 			log "Deal opened: ${SONM_DEAL}, stopping miner"
-			miner stop
+			hive_miner stop
 			watch_deal
 		fi
 	done
@@ -33,17 +37,18 @@ watch_deal() {
                         log "Deal is active ($SONM_DEAL), waiting"
 			if ! [ -z "$(check_miner)" ]; then
 			log "WARN - Miner is running for some reason, stopping miner"
-			miner stop
+			hive_miner stop
 			fi
                         sleep 10
                 else
                         log "Deal has been closed: starting miner"
-                        miner start
+                        hive_miner start
                         wait_deal
 		fi
         done
 }
 
+export $(cat /etc/environment | grep -v "#")
 MINER_STATUS=$(check_miner)
 SONM_STATUS=$(check_deal)
 
@@ -51,7 +56,7 @@ if [ -z "$MINER_STATUS" ]; then
 	log "Miner not running"
 	if [ -z "$SONM_STATUS" ]; then
 		log "There's no deal in SONM, starting miner"
-		miner start
+		hive_miner start
 		wait_deal
 	else
 		log "There is the deal in SONM ($SONM_STATUS), waiting for deal finish"
@@ -64,7 +69,7 @@ else
                 wait_deal
         else
                 log "There is the deal in SONM ($SONM_STATUS), stopping miner"
-                miner stop
+                hive_miner stop
 		watch_deal
         fi
 fi
