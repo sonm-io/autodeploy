@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+
+log() {
+	echo $(date --rfc-3339=seconds) - $1
+}
+
+check_deal() {
+	echo $(sonmcli worker ask-plan list | grep deal)
+}
+
+check_miner() {
+	echo $(ps ax | grep miner | grep SCREEN)
+}
+
+wait_deal() {
+        while true; do
+		SONM_DEAL=$(check_deal)
+		if [ -z "$SONM_DEAL" ]; then
+			log "No deal in SONM, waiting"
+			sleep 10
+		else
+			log "Deal opened: ${SONM_DEAL}, stopping miner"
+			miner stop
+			watch_deal
+		fi
+	done
+}
+
+watch_deal() {
+        while true; do
+                SONM_DEAL=$(check_deal)
+                if ! [ -z "$SONM_DEAL" ]; then
+                        log "Deal is active ($SONM_DEAL), waiting"
+			if ! [ -z "$(check_miner)" ]; then
+			log "WARN - Miner is running for some reason, stopping miner"
+			miner stop
+			fi
+                        sleep 10
+                else
+                        log "Deal has been closed: starting miner"
+                        miner start
+                        wait_deal
+		fi
+        done
+}
+
+MINER_STATUS=$(check_miner)
+SONM_STATUS=$(check_deal)
+
+if [ -z "$MINER_STATUS" ]; then
+	log "Miner not running"
+	if [ -z "$SONM_STATUS" ]; then
+		log "There's no deal in SONM, starting miner"
+		miner start
+		wait_deal
+	else
+		log "There is the deal in SONM ($SONM_STATUS), waiting for deal finish"
+		watch_deal
+	fi
+else
+	log "Miner is running"
+	if [ -z "$SONM_STATUS" ]; then
+                log "There's no deal in SONM, waiting for the deal"
+                wait_deal
+        else
+                log "There is the deal in SONM ($SONM_STATUS), stopping miner"
+                miner stop
+		watch_deal
+        fi
+fi

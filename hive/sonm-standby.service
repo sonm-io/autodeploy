@@ -1,0 +1,7 @@
+[Unit]
+Description=Switcher for Sonm/Hive internal mining
+After=sonm-worker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/sonm-standby

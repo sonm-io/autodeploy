@@ -208,11 +208,17 @@ fix_hive() {
         wget -q ${github_url}/${branch}/hive/sonm-xorg-config -O /usr/bin/sonm-xorg-config
         chmod +x /usr/bin/sonm-xorg-config
 
+        wget -q ${github_url}/${branch}/hive/sonm-standby.service -O /etc/systemd/system/sonm-standby.service
+        wget -q ${github_url}/${branch}/hive/sonm-standby -O /usr/bin/sonm-standby
+        chmod +x /usr/bin/sonm-standby
+
         echo "Enabling service"
         systemctl daemon-reload
         systemctl enable sonm-xorg-config.service
         systemctl restart sonm-xorg-config.service
         systemctl restart hivex.service
+        systemctl enable sonm-standby.service
+        systemctl restart sonm-standby.service
     fi
 }
 
