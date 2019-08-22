@@ -226,7 +226,7 @@ install_sonm() {
     if [ ${DEV} ]; then
         echo Installing SONM dev packages
         rm  -f /etc/apt/sources.list.d/SONM_core.list
-        branch='dev'
+        branch=$DEV
         download_url='https://packagecloud.io/install/repositories/SONM/core-dev/script.deb.sh'
     else
         echo Installing SONM packages
