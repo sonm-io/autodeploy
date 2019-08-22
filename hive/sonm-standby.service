@@ -3,5 +3,6 @@ Description=Switcher for Sonm/Hive internal mining
 After=sonm-worker.service
 
 [Service]
-Type=oneshot
+Type=simple
 ExecStart=/usr/bin/sonm-standby
+Restart=always
