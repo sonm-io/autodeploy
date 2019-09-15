@@ -55,8 +55,7 @@ SONM_STATUS=$(check_deal)
 if [ -z "$MINER_STATUS" ]; then
 	log "Miner not running"
 	if [ -z "$SONM_STATUS" ]; then
-		log "There's no deal in SONM, starting miner"
-		hive_miner start
+		log "There's no deal in SONM"
 		wait_deal
 	else
 		log "There is the deal in SONM ($SONM_STATUS), waiting for deal finish"
