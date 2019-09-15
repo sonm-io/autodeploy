@@ -1,8 +1,12 @@
 [Unit]
 Description=Switcher for Sonm/Hive internal mining
-After=sonm-worker.service
+Wants=network-online.target
+After=network.target network-online.target
 
 [Service]
 Type=simple
 ExecStart=/usr/bin/sonm-standby
 Restart=always
+
+[Install]
+WantedBy=multi-user.target
