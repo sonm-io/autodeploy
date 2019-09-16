@@ -210,6 +210,7 @@ fix_hive() {
 
         systemctl daemon-reload
         systemctl enable sonm-xorg-config.service
+        enable_standby
     fi
 }
 
