@@ -224,7 +224,7 @@ enable_standby() {
 
     CARDS_NUM=`nvidia-smi -L | grep UUID | wc -l`
 
-    if ! [ $CARDS_NUM -gt 0 ]; then
+    if [ $CARDS_NUM -gt 0 ]; then
         mv /etc/sonm/optimus-default.yaml /etc/sonm/optimus-backup.yaml
         if [ -z $GPU_PRICE ]; then 
             GPU_PRICE="0.07"
