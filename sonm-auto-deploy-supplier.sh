@@ -208,17 +208,31 @@ fix_hive() {
         wget -q ${github_url}/${branch}/hive/sonm-xorg-config -O /usr/bin/sonm-xorg-config
         chmod +x /usr/bin/sonm-xorg-config
 
-        wget -q ${github_url}/${branch}/hive/sonm-standby.service -O /etc/systemd/system/sonm-standby.service
-        wget -q ${github_url}/${branch}/hive/sonm-standby -O /usr/bin/sonm-standby
-        chmod +x /usr/bin/sonm-standby
-
-        echo "Enabling service"
         systemctl daemon-reload
         systemctl enable sonm-xorg-config.service
-        systemctl restart sonm-xorg-config.service
-        systemctl restart hivex.service
-        systemctl enable sonm-standby.service
-        systemctl restart sonm-standby.service
+    fi
+}
+
+enable_standby() {
+    echo "Enabling sonm-standby service"
+    wget -q ${github_url}/${branch}/hive/sonm-standby.service -O /etc/systemd/system/sonm-standby.service
+    wget -q ${github_url}/${branch}/hive/sonm-standby -O /usr/bin/sonm-standby
+    chmod +x /usr/bin/sonm-standby
+    systemctl enable sonm-standby.service
+    systemctl restart sonm-standby.service
+
+    CARDS_NUM=`nvidia-smi -L | grep UUID | wc -l`
+
+    if ! [ -z $CARDS_NUM ]; then
+        mv /etc/sonm/optimus-default.yaml /etc/sonm/optimus-backup.yaml
+        if [ -z $GPU_PRICE ]; then 
+            GPU_PRICE="0.07"
+        fi
+        SONM_DEAL_PRICE=$(bc -l <<< "scale=2; $CARDS_NUM*$GPU_PRICE")
+        echo "sed 's/min_price: 0.01/min_price: $SONM_DEAL_PRICE/g' /etc/sonm/optimus-backup.yaml > /etc/sonm/optimus-default.yaml" | bash
+        echo "MIN price for deal in Sonm changed to $SONM_DEAL_PRICE USD/h for $CARDS_NUM GPUs"
+    else 
+        echo "No Nvidia GPUs detected"
     fi
 }
 
@@ -253,9 +267,9 @@ install_sonm() {
     echo "Switching to worker"
     su ${actual_user} -c "sonmcli worker switch ${WORKER_ADDRESS}@127.0.0.1:15010"
     set_up_optimus
+    fix_hive
     systemctl restart sonm-optimus
     set_update_script
-    fix_hive
 }
 
 if [[ "$(id -u)" != "0" ]]; then
