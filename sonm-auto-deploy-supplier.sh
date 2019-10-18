@@ -271,6 +271,12 @@ install_sonm() {
     fix_hive
     systemctl restart sonm-optimus
     set_update_script
+    pull_blender
+}
+
+pull_blender() {
+    echo "Pulling sonm/worker-blender image.."
+    docker pull sonm/worker-blender:v1.3.0-8afec08
 }
 
 if [[ "$(id -u)" != "0" ]]; then
