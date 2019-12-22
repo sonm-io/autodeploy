@@ -5,6 +5,12 @@ log() {
 }
 
 check_deal() {
+	# check sonm-node health status
+	sonmcli worker status > /dev/null
+	if ! [ $? -eq 0 ]; then
+		service sonm-node restart
+		sleep 10
+	fi
 	echo $(sonmcli worker ask-plan list | grep deal)
 }
 
