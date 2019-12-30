@@ -230,7 +230,7 @@ enable_standby() {
             GPU_PRICE="0.07"
         fi
         SONM_DEAL_PRICE=$(bc -l <<< "scale=2; $CARDS_NUM*$GPU_PRICE")
-        echo "sed 's/min_price: 0.01/min_price: $SONM_DEAL_PRICE/g' /etc/sonm/optimus-backup.yaml > /etc/sonm/optimus-default.yaml" | bash
+        echo "sed 's/min_price: 0.003/min_price: $SONM_DEAL_PRICE/g' /etc/sonm/optimus-backup.yaml > /etc/sonm/optimus-default.yaml" | bash
         echo "MIN price for deal in Sonm changed to $SONM_DEAL_PRICE USD/h for $CARDS_NUM GPUs"
     else 
         echo "No Nvidia GPUs detected"

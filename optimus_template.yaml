@@ -39,7 +39,7 @@ marketplace:
   # Minimum price threshold for fetching orders from the marketplace.
   # Used to prevent regression poisoning.
   # Optional.
-  min_price: 0.01 USD/h
+  min_price: 0.003 USD/h
 
 # Optimization engine settings.
 optimization: &optimization
