@@ -276,7 +276,7 @@ install_sonm() {
 
 pull_blender() {
     echo "Pulling sonm/worker-blender image.."
-    docker pull sonm/worker-blender:v1.3.0-8afec08
+    docker pull sonm/worker-blender:v1.4.1-3e771da
 }
 
 if [[ "$(id -u)" != "0" ]]; then
